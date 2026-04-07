@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>mak'alem v6.2 - Final Dokunuş</title>
+    <style>
+        :root { --bg: #f0f2f5; --card: #ffffff; --text: #1c1e21; --accent: #1877f2; --border: #dddfe2; --badge: #e4e6eb; --admin: #ffd700; }
+        body.dark { --bg: #18191a; --card: #242526; --text: #e4e6eb; --border: #3e4042; --badge: #3a3b3c; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 75px; transition: 0.3s; }
+        .card { background: var(--card); margin: 12px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header { background: var(--card); padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; text-align: center; }
+        #searchField { width: 92%; padding: 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+        .profile-pic { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+        .badge { background: var(--badge); font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; margin-top: 4px; display: inline-block; }
+        .admin-badge { background: var(--admin); color: #000; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin: 5px 0; }
+        .btn-main { background: var(--accent); color: white; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; height: 60px; border-top: 1px solid var(--border); }
+        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; opacity: 0.4; }
+        .nav-item.active { opacity: 1; color: var(--accent); }
+        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+<script>
+let state = {
+    users: JSON.parse(localStorage.getItem("m62_users") || "[]"),
+    posts: JSON.parse(localStorage.getItem("m62_posts") || "[]"),
+    curr: localStorage.getItem("m62_curr") ? JSON.parse(localStorage.getItem("m62_curr")) : null,
+    dark: localStorage.getItem("m62_dark") === "true",
+    tab: "feed", q: "", viewUser: null
+};
+
+const save = () => {
+    localStorage.setItem("m62_users", JSON.stringify(state.users));
+    localStorage.setItem("m62_posts", JSON.stringify(state.posts));
+    localStorage.setItem("m62_curr", state.curr ? JSON.stringify(state.curr) : "");
+    localStorage.setItem("m62_dark", state.dark);
+};
+
+const isAdmin = (e) => e === "afrimyilmaz@gmail.com";
+
+function getBadge(uid, email) {
+    if(isAdmin(email)) return { n: "🔨 Sistem Kurucusu", g: "Zirve" };
+    let c = state.posts.filter(p => p.uid === uid).length;
+    if(c < 5) return { n: "Yeni Yazar", g: `Kalem Dostu (${5-c} yazı)` };
+    if(c < 15) return { n: "Kalem Dostu", g: `Gümüş Kalem (${15-c} yazı)` };
+    if(c < 30) return { n: "Gümüş Kalem", g: `Altın Kalem (${30-c} yazı)` };
+    return { n: "Usta Yazar", g: "En Üst Seviye" };
+}
+
+function forgotPass() {
+    let e = prompt("Kayıtlı E-posta adresiniz:");
+    let u = state.users.find(x => x.email === e);
+    if(u) {
+        let a = prompt("Güvenlik Sorunuz: " + u.q);
+        if(a && a.toLowerCase().trim() === u.a) alert("Şifreniz: " + u.pass);
+        else alert("Yanlış cevap!");
+    } else alert("Kullanıcı bulunamadı!");
+}
+
+function render() {
+    const root = document.getElementById("app");
+    document.body.className = state.dark ? "dark" : "";
+    
+    if(!state.curr) {
+        root.innerHTML = `<div class="card"><h2>mak'alem</h2>
+            <input id="le" placeholder="E-posta"><input id="lp" type="password" placeholder="Şifre">
+            <button class="btn btn-main" onclick="login()">Giriş Yap</button>
+            <p onclick="forgotPass()" style="text-align:center; color:var(--accent); cursor:pointer; font-size:13px; margin-top:10px">Şifremi Unuttum</p>
+            <hr><br><h3>Kayıt Ol</h3>
+            <input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta">
+            <input id="rp" type="password" placeholder="Şifre"><input id="rq" placeholder="Güvenlik Sorusu">
+            <input id="ra" placeholder="Cevabınız">
+            <div style="font-size:11px; margin:10px 0; border:1px solid var(--border); padding:5px; max-height:60px; overflow-y:auto;">
+                <b>Kullanım Koşulları:</b> Yazılan her türlü makalenin hukuki sorumluluğu yazara aittir. Sistem sadece aracıdır.
+            </div>
+            <label style="font-size:12px"><input type="checkbox" id="rtc"> Koşulları okudum, kabul ediyorum.</label>
+            <button class="btn" style="background:#2ecc71; color:white" onclick="register()">Kayıt Ol</button>
+        </div>`; return;
+    }
+
+    let h = `<div class="header"><h3>mak'alem</h3>
+             <input id="searchField" placeholder="Ara..." oninput="handleSearch(this.value)" value="${state.q}">
+             </div><div id="content">`;
+
+    if(state.tab === "feed") {
+        h += `<div id="postList">${getPostsHTML()}</div>`;
+    } else if(state.tab === "add") {
+        h += `<div class="card"><h3>Paylaş</h3><input id="at" placeholder="Başlık"><textarea id="ac" rows="8" placeholder="İçerik..."></textarea>
+            <button class="btn btn-main" onclick="publish()">Yayınla</button></div>`;
+    } else {
+        let b = getBadge(state.curr.id, state.curr.email);
+        h += `<div class="card" style="text-align:center">
+            <img src="${state.curr.pic||'https://via.placeholder.com/80'}" class="profile-pic" style="width:80px;height:80px"><br>
+            <button class="btn" style="width:auto; font-size:11px" onclick="let i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=e=>{let r=new FileReader();r.onload=()=> {state.curr.pic=r.result;save();render()};r.readAsDataURL(e.target.files[0])};i.click()">Resmi Güncelle</button>
+            <h2>${state.curr.name}</h2>
+            <div class="badge ${isAdmin(state.curr.email)?'admin-badge':''}">${b.n}</div>
+            <p style="font-size:11px; margin-top:5px; color:gray">Sıradaki: ${b.g}</p>
+            <button class="btn" onclick="state.dark=!state.dark;save();render()">Görünüm</button>
+            <button class="btn" style="background:#e74c3c;color:white" onclick="state.curr=null;save();render()">Çıkış</button>
+        </div>`;
+    }
+
+    h += `<div class="nav">
+        <div class="nav-item ${state.tab==='feed'?'active':''}" onclick="state.tab='feed';state.q='';render()">🏠</div>
+        <div class="nav-item ${state.tab==='add'?'active':''}" onclick="state.tab='add';render()">➕</div>
+        <div class="nav-item ${state.tab==='prof'?'active':''}" onclick="state.tab='prof';render()">👤</div>
+    </div>`;
+    root.innerHTML = h;
+}
+
+// KLAVYE SORUNUNU ÇÖZEN KRİTİK FONKSİYON
+function handleSearch(val) {
+    state.q = val;
+    state.viewUser = null;
+    const list = document.getElementById('postList');
+    if(list) list.innerHTML = getPostsHTML();
+}
+
+function getPostsHTML() {
+    let ps = state.posts;
+    if(state.viewUser) {
+        ps = ps.filter(p => p.uid === state.viewUser.id);
+        return `<div class="card" style="background:var(--accent); color:white" onclick="state.viewUser=null;render()"><b>${state.viewUser.name} Kütüphanesi</b> (Geri ↩️)</div>` + ps.map(p => postCard(p)).join('');
+    }
+    let f = ps.filter(p => p.title.toLowerCase().includes(state.q.toLowerCase()) || p.name.toLowerCase().includes(state.q.toLowerCase()));
+    return f.map(p => postCard(p)).join('') || '<div class="card">Henüz yazı yok.</div>';
+}
+
+function postCard(p) {
+    let b = getBadge(p.uid, p.email);
+    return `<div class="card">
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="state.viewUser={id:${p.uid}, name:'${p.name}', email:'${p.email}'};render()">
+            <img src="${p.pic||'https://via.placeholder.com/40'}" class="profile-pic" style="width:35px;height:35px">
+            <div><b>${p.name}</b><br><span class="badge ${isAdmin(p.email)?'admin-badge':''}">${b.n}</span></div>
+        </div>
+        <h4 style="margin-top:10px">${p.title}</h4>
+        <p style="font-size:14px; margin-top:5px; white-space:pre-wrap;">${p.body}</p>
+    </div>`;
+}
+
+function login(){ let u=state.users.find(x=>x.email==document.getElementById('le').value&&x.pass==document.getElementById('lp').value); if(u){state.curr=u;save();render()}else alert('Giriş hatalı'); }
+function register(){ 
+    let n=document.getElementById('rn').value, e=document.getElementById('re').value, p=document.getElementById('rp').value, q=document.getElementById('rq').value, a=document.getElementById('ra').value, tc=document.getElementById('rtc').checked;
+    if(!tc) return alert("Koşulları kabul etmelisiniz!");
+    if(n&&e&&p){ state.users.push({id:Date.now(), name:n, email:e, pass:p, q:q, a:a.toLowerCase().trim(), pic:''}); save(); alert("Kayıt tamam!"); render(); }
+}
+function publish(){ let t=document.getElementById('at').value, c=document.getElementById('ac').value; if(t&&c){state.posts.unshift({id:Date.now(), uid:state.curr.id, name:state.curr.name, email:state.curr.email, pic:state.curr.pic, title:t, body:c}); save(); state.tab='feed'; render()} }
+
+window.onload = render;
+</script>
+</body>
+</html>
