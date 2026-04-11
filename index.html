@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head>
+<head><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1877f2">
+<link rel="apple-touch-icon" href="https://via.placeholder.com/192/1877f2/ffffff?text=M">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>mak'alem v6.2 - Final Dokunuş</title>
