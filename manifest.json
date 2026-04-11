@@ -1,0 +1,15 @@
+{
+  "name": "mak'alem",
+  "short_name": "mak'alem",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#18191a",
+  "theme_color": "#1877f2",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/1877f2/ffffff?text=M",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
