@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>mak'alem v9.8 - Final</title>
+    <title>mak'alem v9.9.5 - Cila</title>
     <style>
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
         body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
@@ -13,22 +13,26 @@
         .brand { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
         .brand span { color: var(--text); font-weight: 300; }
         .announcement { background: var(--warning); color: #1e2a2e; padding: 12px; text-align: center; font-size: 0.85rem; font-weight: bold; border-radius: 0 0 15px 15px; margin: 0 10px 10px 10px; }
-        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); position: relative; }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-size: 1rem; outline: none; }
         button { width: 100%; padding: 14px; border: none; border-radius: 40px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; border-top: 1px solid var(--border); height: 72px; z-index: 1000; }
         .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; opacity: 0.5; }
         .tab.active { opacity: 1; color: var(--accent); border-top: 4px solid var(--accent); }
-        .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; font-weight: bold; margin-left: 6px; display: inline-block; }
+        .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; font-weight: bold; margin-left: 6px; background: var(--accent); color: white; }
         .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 12px 0; }
         .profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 10px auto; display: block; }
-        
-        /* Tam Ekran Okuma Paneli */
+        .meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.85rem; }
+        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 5px; color: #95a5a6; transition: 0.2s; }
+        .like-btn.liked { color: var(--danger); font-weight: bold; }
+        .stat-box { display: flex; justify-content: space-around; margin: 15px 0; padding: 10px; background: var(--bg); border-radius: 15px; }
+        .stat-item { text-align: center; cursor: pointer; }
+        .stat-num { font-weight: bold; display: block; font-size: 1.1rem; }
         .full-read { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 3000; padding: 20px; overflow-y: auto; display: none; }
         .full-read.active { display: block; }
-        
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .modal-card { background: var(--card); width: 90%; max-width: 400px; padding: 20px; border-radius: 24px; }
+        .modal-card { background: var(--card); width: 95%; max-width: 500px; padding: 20px; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
+        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid var(--border); width: 100%; text-align: left; }
     </style>
 </head>
 <body>
@@ -77,10 +81,10 @@ function render() {
         <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
     </div>`;
 
-    if (tab === "feed") html += `<div class="card"><input type="text" placeholder="🔍 Ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
+    if (tab === "feed") html += `<div class="card"><input type="text" placeholder="🔍 Yazı veya yazar ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
     else if (tab === "add") html += viewAdd();
     else if (tab === "admin") html += viewAdmin();
-    else if (tab === "prof") html += viewProf();
+    else if (tab === "prof") html += viewProfile(currU.id);
 
     app.innerHTML = html + nav;
     if (tab === "feed") performSearch();
@@ -96,137 +100,166 @@ function viewAuth() {
     ` : `
         <h3>Yeni Kayıt</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta"><input id="rp" type="password" placeholder="Şifre"><input id="rq" placeholder="Güvenlik Sorusu"><input id="ra" placeholder="Cevabı">
         <div style="text-align:left; margin:10px 0; font-size:0.8rem; background:var(--bg); padding:10px; border-radius:15px; border:1px solid var(--border)">
-            <label style="display:flex; gap:10px; align-items:flex-start">
-                <input type="checkbox" id="terms" style="width:20px; height:20px"> 
-                <span><b>Koşullar:</b> Paylaşılan içeriklerden kullanıcı sorumludur. Argo veya hakaret içeren paylaşımlar silinir.</span>
-            </label>
+            <label style="display:flex; gap:10px; align-items:flex-start"><input type="checkbox" id="terms" style="width:20px; height:20px"> 
+            <span><b>Koşullar:</b> Paylaşılan içeriklerden kullanıcı sorumludur. Argo veya hakaret içeren paylaşımlar silinir.</span></label>
         </div>
         <button onclick="register()" style="background:var(--success)">Kayıt Ol</button>
         <p style="margin-top:15px"><span onclick="isReg=false;render()" style="color:var(--accent); cursor:pointer">Geri Dön</span></p>
     `}</div>`;
 }
 
+function performSearch() {
+    const list = document.getElementById('feedList'); if(!list) return;
+    const term = searchTerm.toLowerCase().trim();
+    let usersHtml = "";
+    if(term) {
+        const foundUsers = users.filter(u => u.name.toLowerCase().includes(term));
+        if(foundUsers.length > 0) {
+            usersHtml = `<div class="card" style="padding:10px"><h4>Yazarlar</h4>` + foundUsers.map(u => `
+                <div class="user-item" onclick="showUserModal(${u.id})">
+                    <img src="${u.pic || 'https://via.placeholder.com/40'}" style="width:30px; height:30px; border-radius:50%">
+                    <span>${esc(u.name)}</span>
+                </div>`).join('') + `</div>`;
+        }
+    }
+    const filtered = articles.filter(a => a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term) || a.uName.toLowerCase().includes(term));
+    const articlesHtml = filtered.map(a => renderArticleCard(a)).join('') || '<p style="text-align:center; padding:20px; opacity:0.5">Bulunamadı.</p>';
+    list.innerHTML = usersHtml + articlesHtml;
+}
+
+function renderArticleCard(a) {
+    const u = users.find(x => x.id === a.uid);
+    const shortContent = a.content.length > 100 ? a.content.substring(0, 100) + "..." : a.content;
+    const isLiked = (a.likes || []).includes(currU.id);
+    const time = new Date(a.id).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    return `<div class="card" onclick="openFull(${a.id})" style="cursor:pointer">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+            <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover" onclick="event.stopPropagation(); showUserModal(${a.uid})">
+            <div style="font-size:0.9rem" onclick="event.stopPropagation(); showUserModal(${a.uid})"><b>${esc(a.uName)}</b> ${u?.badge?`<span class="badge">${esc(u.badge)}</span>`:''}</div>
+            <div style="flex:1"></div>${(isAdmin(currU.email)||a.uid===currU.id)?`<span onclick="event.stopPropagation();delA(${a.id})">🗑️</span>`:''}
+        </div>
+        <h3 style="color:var(--accent)">${esc(a.title)}</h3>
+        ${a.img?`<img src="${a.img}" class="feed-img">`:''}
+        <p style="margin-top:5px; line-height:1.4">${esc(shortContent)}</p>
+        
+        <div class="meta-row">
+            <span style="opacity:0.6">🕒 ${time}</span>
+            <div class="like-btn ${isLiked?'liked':''}" onclick="event.stopPropagation(); toggleLike(${a.id})">
+                ${isLiked?'❤️':'🤍'} <span>${(a.likes || []).length}</span>
+            </div>
+        </div>
+    </div>`;
+}
+
+function toggleLike(aid) {
+    const a = articles.find(x => x.id === aid);
+    if(!a.likes) a.likes = [];
+    if(a.likes.includes(currU.id)) a.likes = a.likes.filter(id => id !== currU.id);
+    else a.likes.push(currU.id);
+    save(); render();
+}
+
+function viewProfile(userId) {
+    const u = users.find(x => x.id === userId);
+    if(!u) return "";
+    const isMe = currU.id === userId;
+    const userArticles = articles.filter(a => a.uid === userId);
+    const followers = users.filter(x => x.following && x.following.includes(userId)).length;
+    const followingCount = (u.following || []).length;
+
+    return `<div class="card" style="text-align:center">
+        <img src="${u.pic||'https://via.placeholder.com/100'}" class="profile-img">
+        ${isMe ? `<button onclick="pickImg(r=>{currU.pic=r; saveUsers(); render()})" style="width:auto; padding:5px 10px; font-size:0.7rem">Değiştir</button>` : ''}
+        <h2>${esc(u.name)} ${u.badge?`<span class="badge">${esc(u.badge)}</span>`:''}</h2>
+        <p style="font-style:italic; opacity:0.8; margin:10px 0; font-size:0.9rem">${esc(u.bio || 'Henüz bir özgeçmiş yok.')}</p>
+        ${isMe ? `<button onclick="editBio()" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
+        <div class="stat-box">
+            <div class="stat-item" onclick="showFollowList(${u.id}, 'followers')"><span class="stat-num">${followers}</span> Takipçi</div>
+            <div class="stat-item" onclick="showFollowList(${u.id}, 'following')"><span class="stat-num">${followingCount}</span> Takip</div>
+            <div class="stat-item"><span class="stat-num">${userArticles.length}</span> Yazı</div>
+        </div>
+        ${!isMe ? `<button onclick="toggleFollow(${u.id})" style="background:${(currU.following||[]).includes(u.id)?'var(--border)':'var(--success)'}; color:${(currU.following||[]).includes(u.id)?'black':'white'}">${(currU.following||[]).includes(u.id)?'Takibi Bırak':'Takip Et'}</button>` : ''}
+        <hr style="margin:20px 0; opacity:0.1">
+        <h3>${isMe ? 'Kütüphanem' : esc(u.name)}</h3>
+        <div id="userFeed">${userArticles.map(a => renderArticleCard(a)).join('') || 'Yazı yok.'}</div>
+        ${isMe ? `<button onclick="dark=!dark;save();render()" style="margin-top:20px">🌓 Tema</button><button onclick="logout()" style="background:var(--danger)">🚪 Çıkış</button>` : ''}
+    </div>`;
+}
+
+function viewAdmin() {
+    return `<div class="card"><h2>⚙️ Yönetim</h2><input id="annI" value="${esc(globalAnn)}"><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Güncelle</button>
+    <hr style="margin:20px 0; opacity:0.1">
+    ${users.map(u=>`<div class="user-item">
+        <div style="flex:1"><b>${esc(u.name)}</b><br><small>${esc(u.email)}</small></div>
+        <button onclick="setB(${u.id})" style="width:auto; padding:5px; font-size:0.6rem">Rozet</button>
+        <button onclick="setW(${u.id})" style="width:auto; padding:5px; font-size:0.6rem; background:var(--warning); color:black">Uyarı</button>
+        ${!isAdmin(u.email)?`<button onclick="delU(${u.id})" style="width:auto; padding:5px; font-size:0.6rem; background:var(--danger)">Sil</button>`:''}
+    </div>`).join('')}</div>`;
+}
+
+function forgotPass() {
+    let e = prompt("E-postanı gir:");
+    if(!e) return;
+    let u = users.find(x => x.email.toLowerCase() === e.trim().toLowerCase());
+    if(!u) return alert("Bulunamadı!");
+    let a = prompt(`Soru: ${u.rq}\nCevap?`);
+    if(a && a.trim().toLowerCase() === u.ra.toLowerCase()) alert(`Şifreniz: ${u.pass}`);
+    else if(a) alert("Yanlış!");
+}
+
+function editBio() {
+    let b = prompt("Özgeçmişin:", currU.bio || "");
+    if(b !== null) { currU.bio = b; saveUsers(); render(); }
+}
+
+function toggleFollow(id) {
+    if(!currU.following) currU.following = [];
+    if(currU.following.includes(id)) currU.following = currU.following.filter(x => x !== id);
+    else currU.following.push(id);
+    saveUsers(); render();
+}
+
+function saveUsers() { users = users.map(u => u.id === currU.id ? currU : u); save(); }
 function login() {
     let e = document.getElementById("le").value.trim().toLowerCase();
     let p = document.getElementById("lp").value.trim();
     let u = users.find(x => x.email.toLowerCase() === e && x.pass === p);
-    if(u) { currU = u; save(); render(); } else alert("E-posta veya şifre hatalı usta!");
+    if(u) { currU = u; save(); render(); } else alert("Hatalı!");
 }
-
 function register() {
     let n=document.getElementById("rn").value, e=document.getElementById("re").value.trim().toLowerCase(), p=document.getElementById("rp").value.trim(), q=document.getElementById("rq").value, a=document.getElementById("ra").value;
-    if(!n||!e||!p||!q||!a||!document.getElementById("terms").checked) return alert("Bilgileri doldur ve koşulları onayla!");
-    if(users.some(x=>x.email===e)) return alert("Bu e-posta zaten kayıtlı!");
-    let u = { id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, badge:"", warn:"", pic:"" };
+    if(!n||!e||!p||!q||!a||!document.getElementById("terms").checked) return alert("Eksikleri doldur!");
+    let u = { id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, badge:"", warn:"", pic:"", bio:"", following: [] };
     users.push(u); currU=u; save(); render();
 }
-
-function performSearch() {
-    const list = document.getElementById('feedList'); if(!list) return;
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = articles.filter(a => a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term));
-    list.innerHTML = filtered.map(a => {
-        const u = users.find(x => x.id === a.uid);
-        const shortContent = a.content.length > 100 ? a.content.substring(0, 100) + "..." : a.content;
-        return `<div class="card" onclick="openFull(${a.id})" style="cursor:pointer">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
-                <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover">
-                <div style="font-size:0.9rem"><b>${esc(a.uName)}</b></div>
-                <div style="flex:1"></div>${(isAdmin(currU.email)||a.uid===currU.id)?`<span onclick="event.stopPropagation();delA(${a.id})">🗑️</span>`:''}
-            </div>
-            <h3 style="color:var(--accent)">${esc(a.title)}</h3>
-            ${a.img?`<img src="${a.img}" class="feed-img">`:''}
-            <p style="margin-top:5px; line-height:1.4">${esc(shortContent)}</p>
-            ${a.content.length > 100 ? `<p style="color:var(--accent); font-size:0.8rem; font-weight:bold">Devamını oku...</p>` : ''}
-        </div>`;
-    }).join('') || '<p style="text-align:center; padding:20px; opacity:0.5">Henüz yazı yok.</p>';
-}
-
 function openFull(id) {
     const a = articles.find(x => x.id === id); if(!a) return;
     const reader = document.getElementById("fullReader");
-    reader.innerHTML = `
-        <button onclick="closeFull()" style="background:var(--text); width:auto; padding:10px 20px; margin-bottom:20px">⬅ Geri Dön</button>
-        <h1 style="color:var(--accent); margin-bottom:15px">${esc(a.title)}</h1>
-        ${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin-bottom:20px">`:''}
-        <div style="font-size:1.2rem; line-height:1.6; white-space:pre-wrap">${esc(a.content)}</div>
-    `;
+    reader.innerHTML = `<button onclick="closeFull()" style="background:var(--text); width:auto; padding:10px 20px; margin-bottom:20px">⬅ Geri</button><h1 style="color:var(--accent); margin-bottom:15px">${esc(a.title)}</h1>${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin-bottom:20px">`:''}<div style="font-size:1.2rem; line-height:1.6; white-space:pre-wrap">${esc(a.content)}</div>`;
     reader.classList.add("active");
 }
 function closeFull() { document.getElementById("fullReader").classList.remove("active"); }
-
-function forgotPass() {
-    showPrompt('E-posta gir usta:', '', (email) => {
-        if(!email) return;
-        let u = users.find(x => x.email.toLowerCase() === email.toLowerCase());
-        if(!u) return alert("Hesap bulunamadı!");
-        setTimeout(() => {
-            showPrompt(`Soru: ${u.rq}`, '', (ans) => {
-                if(ans && ans.toLowerCase() === u.ra.toLowerCase()) alert(`Şifren: ${u.pass}`);
-                else if(ans) alert("Yanlış cevap!");
-            });
-        }, 300);
-    }, true);
+function showUserModal(id) {
+    const modal = document.getElementById('modalContainer');
+    modal.innerHTML = `<div class="modal-overlay" onclick="closeM()"><div class="modal-card" onclick="event.stopPropagation()"><button onclick="closeM()" style="width:auto; float:right; background:none; color:var(--text); padding:0">✖</button>${viewProfile(id)}</div></div>`;
 }
-
-function viewAdd() {
-    return `<div class="card"><h2>✍️ Yeni Paylaşım</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>
-    ${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="8" placeholder="İçerik..."></textarea><button onclick="publish()">Yayınla</button></div>`;
+function showFollowList(userId, type) {
+    const u = users.find(x => x.id === userId);
+    let list = type === 'following' ? users.filter(x => (u.following || []).includes(x.id)) : users.filter(x => (x.following || []).includes(userId));
+    const html = `<div class="modal-overlay" onclick="closeM()"><div class="modal-card" onclick="event.stopPropagation()"><h3>${type === 'followers' ? 'Takipçiler' : 'Takip Edilenler'}</h3>${list.map(x => `<div class="user-item" onclick="showUserModal(${x.id})"><img src="${x.pic || 'https://via.placeholder.com/40'}" style="width:30px; height:30px; border-radius:50%"> ${esc(x.name)}</div>`).join('') || 'Boş.'}<button onclick="closeM()">Kapat</button></div></div>`;
+    document.getElementById('modalContainer').innerHTML = html;
 }
-
-function viewProf() {
-    return `<div class="card" style="text-align:center"><img src="${currU.pic||'https://via.placeholder.com/100'}" class="profile-img">
-    <button onclick="pickImg(r=>{currU.pic=r; users=users.map(u=>u.id===currU.id?currU:u); save(); render()})" style="width:auto; padding:5px 15px">Resmi Değiştir</button>
-    <h2>${esc(currU.name)}</h2>${currU.badge?`<p>🏅 ${esc(currU.badge)}</p>`:''}<button onclick="dark=!dark;save();render()">🌓 Tema</button>
-    <button onclick="currU=null;save();render()" style="background:var(--danger)">🚪 Çıkış</button></div>`;
-}
-
-function viewAdmin() {
-    return `<div class="card"><h2>⚙️ Yönetim</h2><input id="annI" value="${esc(globalAnn)}"><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button><hr style="margin:20px 0; opacity:0.1">
-    ${users.map(u=>`<div style="padding:10px; border-bottom:1px solid var(--border)"><b>${esc(u.name)}</b> (${esc(u.email)})<br>
-    <button onclick="setB(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem">🏅 Rozet</button>
-    <button onclick="setW(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--warning); color:black">⚠️ Uyarı</button>
-    ${!isAdmin(u.email)?`<button onclick="delU(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">❌ Sil</button>`:''}</div>`).join('')}</div>`;
-}
-
-function publish() {
-    let t=document.getElementById("at").value, c=document.getElementById("ac").value;
-    if(!t||!c) return alert("Başlık ve içerik yazmalısın!");
-    articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg });
-    tmpImg=null; save(); tab="feed"; render();
-}
-
-function setB(id) { showPrompt('Rozet:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).badge=v; save(); render(); }}); }
-function setW(id) { showPrompt('Uyarı:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).warn=v; save(); render(); }}); }
-function delU(id) { if(confirm('Silinsin mi?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function viewAdd() { return `<div class="card"><h2>✍️ Yeni Paylaşım</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf</button>${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="8" placeholder="İçerik..."></textarea><button onclick="publish()">Yayınla</button></div>`; }
+function publish() { let t=document.getElementById("at").value, c=document.getElementById("ac").value; if(!t||!c) return alert("Eksik!"); articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[] }); tmpImg=null; save(); tab="feed"; render(); }
+function logout() { currU=null; save(); render(); }
 function delA(id) { if(confirm('Silinsin mi?')){ articles=articles.filter(a=>a.id!==id); save(); render(); }}
+function delU(id) { if(confirm('Silinsin mi?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function setB(id) { let v = prompt("Rozet:"); if(v!==null){ users.find(u=>u.id===id).badge=v; save(); render(); }}
+function setW(id) { let v = prompt("Uyarı:"); if(v!==null){ users.find(u=>u.id===id).warn=v; save(); render(); }}
 function clearWarn() { currU.warn=""; users.find(u=>u.id===currU.id).warn=""; save(); render(); }
-
-function pickImg(cb) {
-    const i = document.createElement('input'); i.type='file'; i.accept='image/*';
-    i.onchange=e=>{
-        const f=e.target.files[0], r=new FileReader();
-        r.onload=re=>{
-            const img=new Image(); img.onload=()=>{
-                const cvs=document.createElement('canvas'); const m=500; let w=img.width, h=img.height;
-                if(w>m){h*=m/w; w=m;} cvs.width=w; cvs.height=h;
-                cvs.getContext('2d').drawImage(img,0,0,w,h); cb(cvs.toDataURL('image/jpeg',0.7));
-            }; img.src=re.target.result;
-        }; r.readAsDataURL(f);
-    }; i.click();
-}
-
-function showPrompt(t, v, cb, persistent = false) {
-    const m = document.getElementById('modalContainer');
-    m.innerHTML = `<div class="modal-overlay" id="ovl"><div class="modal-card" onclick="event.stopPropagation()">
-        <h3>${t}</h3><input id="mi" value="${esc(v)}" autofocus>
-        <div style="display:flex; gap:10px"><button onclick="cb_call(document.getElementById('mi').value)">Tamam</button>
-        <button style="background:var(--danger)" onclick="closeM()">İptal</button></div></div></div>`;
-    if(!persistent) document.getElementById('ovl').onclick = closeM;
-    window.cb_call = (val) => { cb(val); closeM(); };
-}
 function closeM() { document.getElementById('modalContainer').innerHTML = ''; }
-
+function pickImg(cb) { const i = document.createElement('input'); i.type='file'; i.accept='image/*'; i.onchange=e=>{ const f=e.target.files[0], r=new FileReader(); r.onload=re=>{ const img=new Image(); img.onload=()=>{ const cvs=document.createElement('canvas'); const m=500; let w=img.width, h=img.height; if(w>m){h*=m/w; w=m;} cvs.width=w; cvs.height=h; cvs.getContext('2d').drawImage(img,0,0,w,h); cb(cvs.toDataURL('image/jpeg',0.7)); }; img.src=re.target.result; }; r.readAsDataURL(f); }; i.click(); }
 window.onload = render;
 </script>
 </body>
