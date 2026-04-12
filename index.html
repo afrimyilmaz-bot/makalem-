@@ -1,164 +1,218 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1877f2">
-<link rel="apple-touch-icon" href="https://via.placeholder.com/192/1877f2/ffffff?text=M">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>mak'alem v6.2 - Final Dokunuş</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>mak'alem v9.6 - Tam Takım</title>
     <style>
-        :root { --bg: #f0f2f5; --card: #ffffff; --text: #1c1e21; --accent: #1877f2; --border: #dddfe2; --badge: #e4e6eb; --admin: #ffd700; }
-        body.dark { --bg: #18191a; --card: #242526; --text: #e4e6eb; --border: #3e4042; --badge: #3a3b3c; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 75px; transition: 0.3s; }
-        .card { background: var(--card); margin: 12px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .header { background: var(--card); padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; text-align: center; }
-        #searchField { width: 92%; padding: 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
-        .profile-pic { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-        .badge { background: var(--badge); font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; margin-top: 4px; display: inline-block; }
-        .admin-badge { background: var(--admin); color: #000; }
-        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin: 5px 0; }
-        .btn-main { background: var(--accent); color: white; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; height: 60px; border-top: 1px solid var(--border); }
-        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; opacity: 0.4; }
-        .nav-item.active { opacity: 1; color: var(--accent); }
-        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+        :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
+        body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 80px; }
+        .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .brand { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
+        .brand span { color: var(--text); font-weight: 300; }
+        .announcement { background: var(--warning); color: #1e2a2e; padding: 12px; text-align: center; font-size: 0.85rem; font-weight: bold; border-radius: 0 0 15px 15px; margin: 0 10px 10px 10px; }
+        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-size: 1rem; outline: none; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 40px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; border-top: 1px solid var(--border); height: 72px; z-index: 1000; }
+        .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; opacity: 0.5; }
+        .tab.active { opacity: 1; color: var(--accent); border-top: 4px solid var(--accent); }
+        .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; font-weight: bold; margin-left: 6px; display: inline-block; }
+        .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 12px 0; border: 1px solid var(--border); }
+        .profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 10px auto; display: block; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .modal-card { background: var(--card); width: 90%; max-width: 400px; padding: 20px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
     <div id="app"></div>
+    <div id="modalContainer"></div>
 
 <script>
-let state = {
-    users: JSON.parse(localStorage.getItem("m62_users") || "[]"),
-    posts: JSON.parse(localStorage.getItem("m62_posts") || "[]"),
-    curr: localStorage.getItem("m62_curr") ? JSON.parse(localStorage.getItem("m62_curr")) : null,
-    dark: localStorage.getItem("m62_dark") === "true",
-    tab: "feed", q: "", viewUser: null
-};
+// --- VERİ MERKEZİ ---
+let users = JSON.parse(localStorage.getItem("m_u") || "[]");
+let articles = JSON.parse(localStorage.getItem("m_a") || "[]");
+let currU = localStorage.getItem("m_c") ? JSON.parse(localStorage.getItem("m_c")) : null;
+let globalAnn = localStorage.getItem("m_ann") || "📢 mak'alem dünyasına hoş geldiniz!";
+let tab = "feed", dark = localStorage.getItem("m_d") === "true", isReg = false, tmpImg = null, searchTerm = "";
 
 const save = () => {
-    localStorage.setItem("m62_users", JSON.stringify(state.users));
-    localStorage.setItem("m62_posts", JSON.stringify(state.posts));
-    localStorage.setItem("m62_curr", state.curr ? JSON.stringify(state.curr) : "");
-    localStorage.setItem("m62_dark", state.dark);
+    localStorage.setItem("m_u", JSON.stringify(users));
+    localStorage.setItem("m_a", JSON.stringify(articles));
+    localStorage.setItem("m_c", currU ? JSON.stringify(currU) : "");
+    localStorage.setItem("m_ann", globalAnn);
+    localStorage.setItem("m_d", dark);
 };
 
-const isAdmin = (e) => e === "afrimyilmaz@gmail.com";
+const esc = (s) => String(s || "").replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const isAdmin = (email) => email === "afrimyilmaz@gmail.com";
 
-function getBadge(uid, email) {
-    if(isAdmin(email)) return { n: "🔨 Sistem Kurucusu", g: "Zirve" };
-    let c = state.posts.filter(p => p.uid === uid).length;
-    if(c < 5) return { n: "Yeni Yazar", g: `Kalem Dostu (${5-c} yazı)` };
-    if(c < 15) return { n: "Kalem Dostu", g: `Gümüş Kalem (${15-c} yazı)` };
-    if(c < 30) return { n: "Gümüş Kalem", g: `Altın Kalem (${30-c} yazı)` };
-    return { n: "Usta Yazar", g: "En Üst Seviye" };
+// --- MOTOR ---
+function render() {
+    if(currU) {
+        const fresh = users.find(x => x.id === currU.id);
+        if (fresh) currU = fresh;
+    }
+    const app = document.getElementById("app");
+    document.body.className = dark ? "dark" : "";
+    if (!currU) { app.innerHTML = viewAuth(); return; }
+
+    let html = `<div class="header"><div class="brand">mak'<span>alem</span></div></div>
+                <div class="announcement">${esc(globalAnn)}</div>`;
+    
+    if (currU.warn) {
+        html += `<div class="card" style="background:var(--danger); color:white; border:none">
+                    <b>⚠️ UYARI:</b> ${esc(currU.warn)} 
+                    <button onclick="clearWarn()" style="background:white; color:var(--danger); padding:5px; margin-top:10px; font-size:0.7rem; border:none; border-radius:10px; width:auto">Anladım</button>
+                 </div>`;
+    }
+
+    const nav = `<div class="tab-bar">
+        <div class="tab ${tab==='feed'?'active':''}" onclick="tab='feed';searchTerm='';render()">🏠<br>Akış</div>
+        <div class="tab ${tab==='add'?'active':''}" onclick="tab='add';render()">➕<br>Paylaş</div>
+        ${isAdmin(currU.email) ? `<div class="tab ${tab==='admin'?'active':''}" onclick="tab='admin';render()">⚙️<br>Yönetim</div>` : ''}
+        <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
+    </div>`;
+
+    if (tab === "feed") html += `<div class="card"><input type="text" placeholder="🔍 Yazılarda ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
+    else if (tab === "add") html += viewAdd();
+    else if (tab === "admin") html += viewAdmin();
+    else if (tab === "prof") html += viewProf();
+
+    app.innerHTML = html + nav;
+    if (tab === "feed") performSearch();
+}
+
+// --- GÖRÜNÜMLER ---
+function viewAuth() {
+    return `<div class="card" style="text-align:center; margin-top:40px"><div class="brand" style="font-size:2.5rem">mak'<span>alem</span></div>
+    ${!isReg ? `
+        <h3>Giriş Yap</h3><input id="le" placeholder="E-posta" type="email"><input id="lp" type="password" placeholder="Şifre">
+        <button onclick="login()">Giriş Yap</button>
+        <p onclick="forgotPass()" style="margin-top:15px; color:var(--accent); cursor:pointer; font-size:0.9rem; text-decoration:underline">Şifremi Unuttum</p>
+        <hr style="margin:20px 0; opacity:0.1"><p>Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer; font-weight:bold">Kayıt Ol</span></p>
+    ` : `
+        <h3>Yeni Kayıt</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta" type="email"><input id="rp" type="password" placeholder="Şifre">
+        <input id="rq" placeholder="Güvenlik Sorusu"><input id="ra" placeholder="Cevabı">
+        <div style="text-align:left; margin:10px 0; font-size:0.8rem; background:var(--bg); padding:10px; border-radius:10px">
+            <label style="display:flex; gap:8px; align-items:center"><input type="checkbox" id="terms" style="width:18px; height:18px"> <span><b>Koşulları Onaylıyorum</b></span></label>
+        </div>
+        <button onclick="register()" style="background:var(--success)">Kayıt Ol</button>
+        <p style="margin-top:15px">Geri Dön <span onclick="isReg=false;render()" style="color:var(--accent); cursor:pointer; font-weight:bold">Giriş Yap</span></p>
+    `}</div>`;
+}
+
+function viewAdd() {
+    return `<div class="card"><h2>✍️ Yeni Yazı</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>
+    ${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="6" placeholder="Yazmaya başla..."></textarea><button onclick="publish()">Yayınla</button></div>`;
+}
+
+function viewProf() {
+    return `<div class="card" style="text-align:center"><img src="${currU.pic||'https://via.placeholder.com/100'}" class="profile-img">
+    <button onclick="pickImg(r=>{currU.pic=r; users=users.map(u=>u.id===currU.id?currU:u); save(); render()})" style="width:auto; padding:5px 15px">Resmi Değiştir</button>
+    <h2 style="margin-top:10px">${esc(currU.name)}</h2>${currU.badge?`<p style="color:var(--accent); font-weight:bold">🏅 ${esc(currU.badge)}</p>`:''}
+    <button onclick="dark=!dark;save();render()" style="background:#7f8c8d; margin-top:20px">🌓 Tema Değiştir</button>
+    <button onclick="currU=null;save();render()" style="background:var(--danger)">🚪 Çıkış Yap</button></div>`;
+}
+
+function viewAdmin() {
+    return `<div class="card"><h2>⚙️ Yönetim</h2><input id="annI" value="${esc(globalAnn)}"><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button><hr style="margin:20px 0; opacity:0.1">
+    ${users.map(u=>`<div style="padding:10px; border-bottom:1px solid var(--border)"><b>${esc(u.name)}</b><br><small>${esc(u.email)}</small><br>
+    <div style="display:flex; gap:5px; margin-top:8px">
+        <button onclick="setB(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem">🏅 Rozet</button>
+        <button onclick="setW(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--warning); color:black">⚠️ Uyarı</button>
+        ${!isAdmin(u.email)?`<button onclick="delU(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">❌ Sil</button>`:''}
+    </div></div>`).join('')}</div>`;
+}
+
+// --- AKSİYONLAR ---
+function login() {
+    let e = document.getElementById("le").value, p = document.getElementById("lp").value;
+    let u = users.find(x => x.email === e && x.pass === p);
+    if(u) { currU = u; save(); render(); } else alert("Hatalı!");
+}
+
+function register() {
+    let n=document.getElementById("rn").value, e=document.getElementById("re").value, p=document.getElementById("rp").value, q=document.getElementById("rq").value, a=document.getElementById("ra").value;
+    if(!n||!e||!p||!q||!a||!document.getElementById("terms").checked) return alert("Eksik bilgi veya onay yok!");
+    if(users.some(x=>x.email===e)) return alert("E-posta kayıtlı!");
+    let u = { id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, badge:"", warn:"", pic:"" };
+    users.push(u); currU=u; save(); render();
 }
 
 function forgotPass() {
-    let e = prompt("Kayıtlı E-posta adresiniz:");
-    let u = state.users.find(x => x.email === e);
-    if(u) {
-        let a = prompt("Güvenlik Sorunuz: " + u.q);
-        if(a && a.toLowerCase().trim() === u.a) alert("Şifreniz: " + u.pass);
-        else alert("Yanlış cevap!");
-    } else alert("Kullanıcı bulunamadı!");
+    showPrompt('Şifre Kurtarma: E-posta girin', '', (email) => {
+        if(!email) return;
+        let u = users.find(x => x.email.trim().toLowerCase() === email.trim().toLowerCase());
+        if(!u) { alert("Hesap bulunamadı!"); return; }
+        
+        // Timeout kullanarak modalın çakışmasını önlüyoruz
+        setTimeout(() => {
+            showPrompt(`Güvenlik Sorusu: ${u.rq}`, '', (ans) => {
+                if(ans && ans.toLowerCase() === u.ra.toLowerCase()) alert(`Şifreniz: ${u.pass}`);
+                else if(ans) alert("Yanlış cevap!");
+            });
+        }, 300);
+    }, true); // true: Dışarı tıklayınca kapanmaz
 }
 
-function render() {
-    const root = document.getElementById("app");
-    document.body.className = state.dark ? "dark" : "";
+function performSearch() {
+    const list = document.getElementById('feedList'); if(!list) return;
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = articles.filter(a => a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term));
+    list.innerHTML = filtered.map(a => {
+        const u = users.find(x => x.id === a.uid);
+        return `<div class="card"><div style="display:flex; align-items:center; gap:10px">
+            <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover">
+            <div><b>${esc(a.uName)}</b> ${u?.badge?`<span class="badge" style="background:var(--accent); color:white">🏅 ${esc(u.badge)}</span>`:''}</div>
+            <div style="flex:1"></div>${(isAdmin(currU.email)||a.uid===currU.id)?`<span onclick="delA(${a.id})" style="cursor:pointer">🗑️</span>`:''}</div>
+            <h3 style="color:var(--accent); margin-top:10px">${esc(a.title)}</h3>${a.img?`<img src="${a.img}" class="feed-img">`:''}
+            <p style="white-space: pre-wrap; margin-top:8px">${esc(a.content)}</p></div>`;
+    }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px">Yazı bulunamadı.</p>';
+}
+
+function publish() {
+    let t=document.getElementById("at").value, c=document.getElementById("ac").value;
+    if(!t||!c) return alert("Boş bırakma!");
+    articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg });
+    tmpImg=null; save(); tab="feed"; render();
+}
+
+// --- YÖNETİM ---
+function setB(id) { showPrompt('Rozet metni:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).badge=v; save(); render(); }}); }
+function setW(id) { showPrompt('Uyarı metni:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).warn=v; save(); render(); }}); }
+function delU(id) { if(confirm('Kullanıcıyı sil?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function delA(id) { if(confirm('Yazıyı sil?')){ articles=articles.filter(a=>a.id!==id); save(); render(); }}
+function clearWarn() { currU.warn=""; users.find(u=>u.id===currU.id).warn=""; save(); render(); }
+
+// --- YARDIMCILAR ---
+function pickImg(cb) {
+    const i = document.createElement('input'); i.type='file'; i.accept='image/*';
+    i.onchange=e=>{
+        const f=e.target.files[0], r=new FileReader();
+        r.onload=re=>{
+            const img=new Image(); img.onload=()=>{
+                const cvs=document.createElement('canvas'); const m=500; let w=img.width, h=img.height;
+                if(w>m){h*=m/w; w=m;} cvs.width=w; cvs.height=h;
+                cvs.getContext('2d').drawImage(img,0,0,w,h); cb(cvs.toDataURL('image/jpeg',0.7));
+            }; img.src=re.target.result;
+        }; r.readAsDataURL(f);
+    }; i.click();
+}
+
+function showPrompt(t, v, cb, persistent = false) {
+    const m = document.getElementById('modalContainer');
+    m.innerHTML = `<div class="modal-overlay" id="ovl"><div class="modal-card" onclick="event.stopPropagation()">
+        <h3>${t}</h3><input id="mi" value="${esc(v)}" autofocus>
+        <div style="display:flex; gap:10px"><button onclick="cb_call(document.getElementById('mi').value)">Tamam</button>
+        <button style="background:var(--danger)" onclick="closeM()">İptal</button></div></div></div>`;
     
-    if(!state.curr) {
-        root.innerHTML = `<div class="card"><h2>mak'alem</h2>
-            <input id="le" placeholder="E-posta"><input id="lp" type="password" placeholder="Şifre">
-            <button class="btn btn-main" onclick="login()">Giriş Yap</button>
-            <p onclick="forgotPass()" style="text-align:center; color:var(--accent); cursor:pointer; font-size:13px; margin-top:10px">Şifremi Unuttum</p>
-            <hr><br><h3>Kayıt Ol</h3>
-            <input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta">
-            <input id="rp" type="password" placeholder="Şifre"><input id="rq" placeholder="Güvenlik Sorusu">
-            <input id="ra" placeholder="Cevabınız">
-            <div style="font-size:11px; margin:10px 0; border:1px solid var(--border); padding:5px; max-height:60px; overflow-y:auto;">
-                <b>Kullanım Koşulları:</b> Yazılan her türlü makalenin hukuki sorumluluğu yazara aittir. Sistem sadece aracıdır.
-            </div>
-            <label style="font-size:12px"><input type="checkbox" id="rtc"> Koşulları okudum, kabul ediyorum.</label>
-            <button class="btn" style="background:#2ecc71; color:white" onclick="register()">Kayıt Ol</button>
-        </div>`; return;
-    }
-
-    let h = `<div class="header"><h3>mak'alem</h3>
-             <input id="searchField" placeholder="Ara..." oninput="handleSearch(this.value)" value="${state.q}">
-             </div><div id="content">`;
-
-    if(state.tab === "feed") {
-        h += `<div id="postList">${getPostsHTML()}</div>`;
-    } else if(state.tab === "add") {
-        h += `<div class="card"><h3>Paylaş</h3><input id="at" placeholder="Başlık"><textarea id="ac" rows="8" placeholder="İçerik..."></textarea>
-            <button class="btn btn-main" onclick="publish()">Yayınla</button></div>`;
-    } else {
-        let b = getBadge(state.curr.id, state.curr.email);
-        h += `<div class="card" style="text-align:center">
-            <img src="${state.curr.pic||'https://via.placeholder.com/80'}" class="profile-pic" style="width:80px;height:80px"><br>
-            <button class="btn" style="width:auto; font-size:11px" onclick="let i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=e=>{let r=new FileReader();r.onload=()=> {state.curr.pic=r.result;save();render()};r.readAsDataURL(e.target.files[0])};i.click()">Resmi Güncelle</button>
-            <h2>${state.curr.name}</h2>
-            <div class="badge ${isAdmin(state.curr.email)?'admin-badge':''}">${b.n}</div>
-            <p style="font-size:11px; margin-top:5px; color:gray">Sıradaki: ${b.g}</p>
-            <button class="btn" onclick="state.dark=!state.dark;save();render()">Görünüm</button>
-            <button class="btn" style="background:#e74c3c;color:white" onclick="state.curr=null;save();render()">Çıkış</button>
-        </div>`;
-    }
-
-    h += `<div class="nav">
-        <div class="nav-item ${state.tab==='feed'?'active':''}" onclick="state.tab='feed';state.q='';render()">🏠</div>
-        <div class="nav-item ${state.tab==='add'?'active':''}" onclick="state.tab='add';render()">➕</div>
-        <div class="nav-item ${state.tab==='prof'?'active':''}" onclick="state.tab='prof';render()">👤</div>
-    </div>`;
-    root.innerHTML = h;
+    if(!persistent) document.getElementById('ovl').onclick = closeM;
+    window.cb_call = (val) => { cb(val); closeM(); };
 }
-
-// KLAVYE SORUNUNU ÇÖZEN KRİTİK FONKSİYON
-function handleSearch(val) {
-    state.q = val;
-    state.viewUser = null;
-    const list = document.getElementById('postList');
-    if(list) list.innerHTML = getPostsHTML();
-}
-
-function getPostsHTML() {
-    let ps = state.posts;
-    if(state.viewUser) {
-        ps = ps.filter(p => p.uid === state.viewUser.id);
-        return `<div class="card" style="background:var(--accent); color:white" onclick="state.viewUser=null;render()"><b>${state.viewUser.name} Kütüphanesi</b> (Geri ↩️)</div>` + ps.map(p => postCard(p)).join('');
-    }
-    let f = ps.filter(p => p.title.toLowerCase().includes(state.q.toLowerCase()) || p.name.toLowerCase().includes(state.q.toLowerCase()));
-    return f.map(p => postCard(p)).join('') || '<div class="card">Henüz yazı yok.</div>';
-}
-
-function postCard(p) {
-    let b = getBadge(p.uid, p.email);
-    return `<div class="card">
-        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="state.viewUser={id:${p.uid}, name:'${p.name}', email:'${p.email}'};render()">
-            <img src="${p.pic||'https://via.placeholder.com/40'}" class="profile-pic" style="width:35px;height:35px">
-            <div><b>${p.name}</b><br><span class="badge ${isAdmin(p.email)?'admin-badge':''}">${b.n}</span></div>
-        </div>
-        <h4 style="margin-top:10px">${p.title}</h4>
-        <p style="font-size:14px; margin-top:5px; white-space:pre-wrap;">${p.body}</p>
-    </div>`;
-}
-
-function login(){ let u=state.users.find(x=>x.email==document.getElementById('le').value&&x.pass==document.getElementById('lp').value); if(u){state.curr=u;save();render()}else alert('Giriş hatalı'); }
-function register(){ 
-    let n=document.getElementById('rn').value, e=document.getElementById('re').value, p=document.getElementById('rp').value, q=document.getElementById('rq').value, a=document.getElementById('ra').value, tc=document.getElementById('rtc').checked;
-    if(!tc) return alert("Koşulları kabul etmelisiniz!");
-    if(n&&e&&p){ state.users.push({id:Date.now(), name:n, email:e, pass:p, q:q, a:a.toLowerCase().trim(), pic:''}); save(); alert("Kayıt tamam!"); render(); }
-}
-function publish(){ let t=document.getElementById('at').value, c=document.getElementById('ac').value; if(t&&c){state.posts.unshift({id:Date.now(), uid:state.curr.id, name:state.curr.name, email:state.curr.email, pic:state.curr.pic, title:t, body:c}); save(); state.tab='feed'; render()} }
+function closeM() { document.getElementById('modalContainer').innerHTML = ''; }
 
 window.onload = render;
 </script>
