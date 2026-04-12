@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>mak'alem v9.6 - Tam Takım</title>
+    <title>mak'alem v9.8 - Final</title>
     <style>
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
         body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
@@ -20,18 +20,23 @@
         .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; opacity: 0.5; }
         .tab.active { opacity: 1; color: var(--accent); border-top: 4px solid var(--accent); }
         .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; font-weight: bold; margin-left: 6px; display: inline-block; }
-        .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 12px 0; border: 1px solid var(--border); }
+        .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 12px 0; }
         .profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 10px auto; display: block; }
+        
+        /* Tam Ekran Okuma Paneli */
+        .full-read { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 3000; padding: 20px; overflow-y: auto; display: none; }
+        .full-read.active { display: block; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .modal-card { background: var(--card); width: 90%; max-width: 400px; padding: 20px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-card { background: var(--card); width: 90%; max-width: 400px; padding: 20px; border-radius: 24px; }
     </style>
 </head>
 <body>
     <div id="app"></div>
+    <div id="fullReader" class="full-read"></div>
     <div id="modalContainer"></div>
 
 <script>
-// --- VERİ MERKEZİ ---
 let users = JSON.parse(localStorage.getItem("m_u") || "[]");
 let articles = JSON.parse(localStorage.getItem("m_a") || "[]");
 let currU = localStorage.getItem("m_c") ? JSON.parse(localStorage.getItem("m_c")) : null;
@@ -49,12 +54,8 @@ const save = () => {
 const esc = (s) => String(s || "").replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 const isAdmin = (email) => email === "afrimyilmaz@gmail.com";
 
-// --- MOTOR ---
 function render() {
-    if(currU) {
-        const fresh = users.find(x => x.id === currU.id);
-        if (fresh) currU = fresh;
-    }
+    if(currU) { const fresh = users.find(x => x.id === currU.id); if (fresh) currU = fresh; }
     const app = document.getElementById("app");
     document.body.className = dark ? "dark" : "";
     if (!currU) { app.innerHTML = viewAuth(); return; }
@@ -65,7 +66,7 @@ function render() {
     if (currU.warn) {
         html += `<div class="card" style="background:var(--danger); color:white; border:none">
                     <b>⚠️ UYARI:</b> ${esc(currU.warn)} 
-                    <button onclick="clearWarn()" style="background:white; color:var(--danger); padding:5px; margin-top:10px; font-size:0.7rem; border:none; border-radius:10px; width:auto">Anladım</button>
+                    <button onclick="clearWarn()" style="background:white; color:var(--danger); padding:5px; margin-top:10px; font-size:0.7rem; width:auto">Anladım</button>
                  </div>`;
     }
 
@@ -76,7 +77,7 @@ function render() {
         <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
     </div>`;
 
-    if (tab === "feed") html += `<div class="card"><input type="text" placeholder="🔍 Yazılarda ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
+    if (tab === "feed") html += `<div class="card"><input type="text" placeholder="🔍 Ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
     else if (tab === "add") html += viewAdd();
     else if (tab === "admin") html += viewAdmin();
     else if (tab === "prof") html += viewProf();
@@ -85,77 +86,39 @@ function render() {
     if (tab === "feed") performSearch();
 }
 
-// --- GÖRÜNÜMLER ---
 function viewAuth() {
     return `<div class="card" style="text-align:center; margin-top:40px"><div class="brand" style="font-size:2.5rem">mak'<span>alem</span></div>
     ${!isReg ? `
         <h3>Giriş Yap</h3><input id="le" placeholder="E-posta" type="email"><input id="lp" type="password" placeholder="Şifre">
         <button onclick="login()">Giriş Yap</button>
         <p onclick="forgotPass()" style="margin-top:15px; color:var(--accent); cursor:pointer; font-size:0.9rem; text-decoration:underline">Şifremi Unuttum</p>
-        <hr style="margin:20px 0; opacity:0.1"><p>Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer; font-weight:bold">Kayıt Ol</span></p>
+        <p style="margin-top:20px">Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer; font-weight:bold">Kayıt Ol</span></p>
     ` : `
-        <h3>Yeni Kayıt</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta" type="email"><input id="rp" type="password" placeholder="Şifre">
-        <input id="rq" placeholder="Güvenlik Sorusu"><input id="ra" placeholder="Cevabı">
-        <div style="text-align:left; margin:10px 0; font-size:0.8rem; background:var(--bg); padding:10px; border-radius:10px">
-            <label style="display:flex; gap:8px; align-items:center"><input type="checkbox" id="terms" style="width:18px; height:18px"> <span><b>Koşulları Onaylıyorum</b></span></label>
+        <h3>Yeni Kayıt</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta"><input id="rp" type="password" placeholder="Şifre"><input id="rq" placeholder="Güvenlik Sorusu"><input id="ra" placeholder="Cevabı">
+        <div style="text-align:left; margin:10px 0; font-size:0.8rem; background:var(--bg); padding:10px; border-radius:15px; border:1px solid var(--border)">
+            <label style="display:flex; gap:10px; align-items:flex-start">
+                <input type="checkbox" id="terms" style="width:20px; height:20px"> 
+                <span><b>Koşullar:</b> Paylaşılan içeriklerden kullanıcı sorumludur. Argo veya hakaret içeren paylaşımlar silinir.</span>
+            </label>
         </div>
         <button onclick="register()" style="background:var(--success)">Kayıt Ol</button>
-        <p style="margin-top:15px">Geri Dön <span onclick="isReg=false;render()" style="color:var(--accent); cursor:pointer; font-weight:bold">Giriş Yap</span></p>
+        <p style="margin-top:15px"><span onclick="isReg=false;render()" style="color:var(--accent); cursor:pointer">Geri Dön</span></p>
     `}</div>`;
 }
 
-function viewAdd() {
-    return `<div class="card"><h2>✍️ Yeni Yazı</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>
-    ${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="6" placeholder="Yazmaya başla..."></textarea><button onclick="publish()">Yayınla</button></div>`;
-}
-
-function viewProf() {
-    return `<div class="card" style="text-align:center"><img src="${currU.pic||'https://via.placeholder.com/100'}" class="profile-img">
-    <button onclick="pickImg(r=>{currU.pic=r; users=users.map(u=>u.id===currU.id?currU:u); save(); render()})" style="width:auto; padding:5px 15px">Resmi Değiştir</button>
-    <h2 style="margin-top:10px">${esc(currU.name)}</h2>${currU.badge?`<p style="color:var(--accent); font-weight:bold">🏅 ${esc(currU.badge)}</p>`:''}
-    <button onclick="dark=!dark;save();render()" style="background:#7f8c8d; margin-top:20px">🌓 Tema Değiştir</button>
-    <button onclick="currU=null;save();render()" style="background:var(--danger)">🚪 Çıkış Yap</button></div>`;
-}
-
-function viewAdmin() {
-    return `<div class="card"><h2>⚙️ Yönetim</h2><input id="annI" value="${esc(globalAnn)}"><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button><hr style="margin:20px 0; opacity:0.1">
-    ${users.map(u=>`<div style="padding:10px; border-bottom:1px solid var(--border)"><b>${esc(u.name)}</b><br><small>${esc(u.email)}</small><br>
-    <div style="display:flex; gap:5px; margin-top:8px">
-        <button onclick="setB(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem">🏅 Rozet</button>
-        <button onclick="setW(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--warning); color:black">⚠️ Uyarı</button>
-        ${!isAdmin(u.email)?`<button onclick="delU(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">❌ Sil</button>`:''}
-    </div></div>`).join('')}</div>`;
-}
-
-// --- AKSİYONLAR ---
 function login() {
-    let e = document.getElementById("le").value, p = document.getElementById("lp").value;
-    let u = users.find(x => x.email === e && x.pass === p);
-    if(u) { currU = u; save(); render(); } else alert("Hatalı!");
+    let e = document.getElementById("le").value.trim().toLowerCase();
+    let p = document.getElementById("lp").value.trim();
+    let u = users.find(x => x.email.toLowerCase() === e && x.pass === p);
+    if(u) { currU = u; save(); render(); } else alert("E-posta veya şifre hatalı usta!");
 }
 
 function register() {
-    let n=document.getElementById("rn").value, e=document.getElementById("re").value, p=document.getElementById("rp").value, q=document.getElementById("rq").value, a=document.getElementById("ra").value;
-    if(!n||!e||!p||!q||!a||!document.getElementById("terms").checked) return alert("Eksik bilgi veya onay yok!");
-    if(users.some(x=>x.email===e)) return alert("E-posta kayıtlı!");
+    let n=document.getElementById("rn").value, e=document.getElementById("re").value.trim().toLowerCase(), p=document.getElementById("rp").value.trim(), q=document.getElementById("rq").value, a=document.getElementById("ra").value;
+    if(!n||!e||!p||!q||!a||!document.getElementById("terms").checked) return alert("Bilgileri doldur ve koşulları onayla!");
+    if(users.some(x=>x.email===e)) return alert("Bu e-posta zaten kayıtlı!");
     let u = { id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, badge:"", warn:"", pic:"" };
     users.push(u); currU=u; save(); render();
-}
-
-function forgotPass() {
-    showPrompt('Şifre Kurtarma: E-posta girin', '', (email) => {
-        if(!email) return;
-        let u = users.find(x => x.email.trim().toLowerCase() === email.trim().toLowerCase());
-        if(!u) { alert("Hesap bulunamadı!"); return; }
-        
-        // Timeout kullanarak modalın çakışmasını önlüyoruz
-        setTimeout(() => {
-            showPrompt(`Güvenlik Sorusu: ${u.rq}`, '', (ans) => {
-                if(ans && ans.toLowerCase() === u.ra.toLowerCase()) alert(`Şifreniz: ${u.pass}`);
-                else if(ans) alert("Yanlış cevap!");
-            });
-        }, 300);
-    }, true); // true: Dışarı tıklayınca kapanmaz
 }
 
 function performSearch() {
@@ -164,30 +127,81 @@ function performSearch() {
     const filtered = articles.filter(a => a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term));
     list.innerHTML = filtered.map(a => {
         const u = users.find(x => x.id === a.uid);
-        return `<div class="card"><div style="display:flex; align-items:center; gap:10px">
-            <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover">
-            <div><b>${esc(a.uName)}</b> ${u?.badge?`<span class="badge" style="background:var(--accent); color:white">🏅 ${esc(u.badge)}</span>`:''}</div>
-            <div style="flex:1"></div>${(isAdmin(currU.email)||a.uid===currU.id)?`<span onclick="delA(${a.id})" style="cursor:pointer">🗑️</span>`:''}</div>
-            <h3 style="color:var(--accent); margin-top:10px">${esc(a.title)}</h3>${a.img?`<img src="${a.img}" class="feed-img">`:''}
-            <p style="white-space: pre-wrap; margin-top:8px">${esc(a.content)}</p></div>`;
-    }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px">Yazı bulunamadı.</p>';
+        const shortContent = a.content.length > 100 ? a.content.substring(0, 100) + "..." : a.content;
+        return `<div class="card" onclick="openFull(${a.id})" style="cursor:pointer">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+                <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover">
+                <div style="font-size:0.9rem"><b>${esc(a.uName)}</b></div>
+                <div style="flex:1"></div>${(isAdmin(currU.email)||a.uid===currU.id)?`<span onclick="event.stopPropagation();delA(${a.id})">🗑️</span>`:''}
+            </div>
+            <h3 style="color:var(--accent)">${esc(a.title)}</h3>
+            ${a.img?`<img src="${a.img}" class="feed-img">`:''}
+            <p style="margin-top:5px; line-height:1.4">${esc(shortContent)}</p>
+            ${a.content.length > 100 ? `<p style="color:var(--accent); font-size:0.8rem; font-weight:bold">Devamını oku...</p>` : ''}
+        </div>`;
+    }).join('') || '<p style="text-align:center; padding:20px; opacity:0.5">Henüz yazı yok.</p>';
+}
+
+function openFull(id) {
+    const a = articles.find(x => x.id === id); if(!a) return;
+    const reader = document.getElementById("fullReader");
+    reader.innerHTML = `
+        <button onclick="closeFull()" style="background:var(--text); width:auto; padding:10px 20px; margin-bottom:20px">⬅ Geri Dön</button>
+        <h1 style="color:var(--accent); margin-bottom:15px">${esc(a.title)}</h1>
+        ${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin-bottom:20px">`:''}
+        <div style="font-size:1.2rem; line-height:1.6; white-space:pre-wrap">${esc(a.content)}</div>
+    `;
+    reader.classList.add("active");
+}
+function closeFull() { document.getElementById("fullReader").classList.remove("active"); }
+
+function forgotPass() {
+    showPrompt('E-posta gir usta:', '', (email) => {
+        if(!email) return;
+        let u = users.find(x => x.email.toLowerCase() === email.toLowerCase());
+        if(!u) return alert("Hesap bulunamadı!");
+        setTimeout(() => {
+            showPrompt(`Soru: ${u.rq}`, '', (ans) => {
+                if(ans && ans.toLowerCase() === u.ra.toLowerCase()) alert(`Şifren: ${u.pass}`);
+                else if(ans) alert("Yanlış cevap!");
+            });
+        }, 300);
+    }, true);
+}
+
+function viewAdd() {
+    return `<div class="card"><h2>✍️ Yeni Paylaşım</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>
+    ${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="8" placeholder="İçerik..."></textarea><button onclick="publish()">Yayınla</button></div>`;
+}
+
+function viewProf() {
+    return `<div class="card" style="text-align:center"><img src="${currU.pic||'https://via.placeholder.com/100'}" class="profile-img">
+    <button onclick="pickImg(r=>{currU.pic=r; users=users.map(u=>u.id===currU.id?currU:u); save(); render()})" style="width:auto; padding:5px 15px">Resmi Değiştir</button>
+    <h2>${esc(currU.name)}</h2>${currU.badge?`<p>🏅 ${esc(currU.badge)}</p>`:''}<button onclick="dark=!dark;save();render()">🌓 Tema</button>
+    <button onclick="currU=null;save();render()" style="background:var(--danger)">🚪 Çıkış</button></div>`;
+}
+
+function viewAdmin() {
+    return `<div class="card"><h2>⚙️ Yönetim</h2><input id="annI" value="${esc(globalAnn)}"><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button><hr style="margin:20px 0; opacity:0.1">
+    ${users.map(u=>`<div style="padding:10px; border-bottom:1px solid var(--border)"><b>${esc(u.name)}</b> (${esc(u.email)})<br>
+    <button onclick="setB(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem">🏅 Rozet</button>
+    <button onclick="setW(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--warning); color:black">⚠️ Uyarı</button>
+    ${!isAdmin(u.email)?`<button onclick="delU(${u.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">❌ Sil</button>`:''}</div>`).join('')}</div>`;
 }
 
 function publish() {
     let t=document.getElementById("at").value, c=document.getElementById("ac").value;
-    if(!t||!c) return alert("Boş bırakma!");
+    if(!t||!c) return alert("Başlık ve içerik yazmalısın!");
     articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg });
     tmpImg=null; save(); tab="feed"; render();
 }
 
-// --- YÖNETİM ---
-function setB(id) { showPrompt('Rozet metni:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).badge=v; save(); render(); }}); }
-function setW(id) { showPrompt('Uyarı metni:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).warn=v; save(); render(); }}); }
-function delU(id) { if(confirm('Kullanıcıyı sil?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
-function delA(id) { if(confirm('Yazıyı sil?')){ articles=articles.filter(a=>a.id!==id); save(); render(); }}
+function setB(id) { showPrompt('Rozet:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).badge=v; save(); render(); }}); }
+function setW(id) { showPrompt('Uyarı:', '', (v)=>{ if(v!==null){ users.find(u=>u.id===id).warn=v; save(); render(); }}); }
+function delU(id) { if(confirm('Silinsin mi?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function delA(id) { if(confirm('Silinsin mi?')){ articles=articles.filter(a=>a.id!==id); save(); render(); }}
 function clearWarn() { currU.warn=""; users.find(u=>u.id===currU.id).warn=""; save(); render(); }
 
-// --- YARDIMCILAR ---
 function pickImg(cb) {
     const i = document.createElement('input'); i.type='file'; i.accept='image/*';
     i.onchange=e=>{
@@ -208,7 +222,6 @@ function showPrompt(t, v, cb, persistent = false) {
         <h3>${t}</h3><input id="mi" value="${esc(v)}" autofocus>
         <div style="display:flex; gap:10px"><button onclick="cb_call(document.getElementById('mi').value)">Tamam</button>
         <button style="background:var(--danger)" onclick="closeM()">İptal</button></div></div></div>`;
-    
     if(!persistent) document.getElementById('ovl').onclick = closeM;
     window.cb_call = (val) => { cb(val); closeM(); };
 }
