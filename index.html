@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>mak'alem v12.0 - Usta İşi</title>
-    <style>
-        :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
-        body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 80px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>mak'alem v12.9 - Usta İşi</title>
+    <style>
+        :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
+        body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 80px; }
 
-        /* KALEM ANİMASYONU */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        body.dark #loader { background: rgba(30, 39, 46, 0.9); }
-        .spinner { width: 85px; height: 85px; border: 5px solid var(--border); border-top: 5px solid var(--accent); border-right: 5px solid var(--success); border-bottom: 5px solid var(--warning); border-radius: 50%; animation: spin 1s linear infinite; position: relative; }
-        .pen-icon { position: absolute; font-size: 35px; top: 20px; left: 25px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* KALEM ANİMASYONU */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        body.dark #loader { background: rgba(30, 39, 46, 0.9); }
+        .spinner { width: 85px; height: 85px; border: 5px solid var(--border); border-top: 5px solid var(--accent); border-right: 5px solid var(--success); border-bottom: 5px solid var(--warning); border-radius: 50%; animation: spin 1s linear infinite; position: relative; }
+        .pen-icon { position: absolute; font-size: 35px; top: 18px; left: 22px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* TASARIM */
-        .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 100; }
-        .brand { font-size: 1.8rem; font-weight: bold; color: var(--accent); cursor: pointer; }
-        .announcement { background: var(--warning); color: #000; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: bold; border-radius: 0 0 15px 15px; margin: 0 10px 10px 10px; }
-        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); position: relative; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); outline: none; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 40px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; border-top: 1px solid var(--border); height: 72px; z-index: 1000; }
-        .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; opacity: 0.5; }
-        .tab.active { opacity: 1; color: var(--accent); border-top: 4px solid var(--accent); }
-        .profile-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 10px auto; display: block; background: #eee; }
-        .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 10px 0; }
-        .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; background: var(--warning); color: #000; margin-left: 5px; font-weight: bold; }
-        .full-read { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 3000; padding: 20px; overflow-y: auto; display: none; }
-        .full-read.active { display: block; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .modal-card { background: var(--card); width: 95%; max-width: 500px; padding: 20px; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
-        .user-scroll-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: var(--bg); }
-    </style>
+        /* TASARIM */
+        .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 100; }
+        .brand { font-size: 1.8rem; font-weight: bold; color: var(--accent); cursor: pointer; }
+        .announcement { background: var(--warning); color: #000; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: bold; border-radius: 0 0 15px 15px; margin: 0 10px 10px 10px; }
+        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); position: relative; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); outline: none; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 40px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); display: flex; border-top: 1px solid var(--border); height: 72px; z-index: 1000; }
+        .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; opacity: 0.5; }
+        .tab.active { opacity: 1; color: var(--accent); border-top: 4px solid var(--accent); }
+        .profile-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 10px auto; display: block; background: #eee; }
+        .feed-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 15px; margin: 10px 0; }
+        .badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; background: var(--warning); color: #000; margin-left: 5px; font-weight: bold; }
+        .full-read { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 3000; padding: 20px; overflow-y: auto; display: none; }
+        .full-read.active { display: block; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .modal-card { background: var(--card); width: 95%; max-width: 500px; padding: 20px; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
+        .user-scroll-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: var(--bg); }
+    </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"><div class="pen-icon">✒️</div></div><p style="margin-top:15px; font-weight:bold;">Usta makaleyi işliyor...</p></div>
-    <div id="app"></div>
-    <div id="fullReader" class="full-read"></div>
-    <div id="modalContainer"></div>
+    <div id="loader"><div class="spinner"><div class="pen-icon">✒️</div></div><p style="margin-top:15px; font-weight:bold;">Usta makaleyi işliyor...</p></div>
+    <div id="app"></div>
+    <div id="fullReader" class="full-read"></div>
+    <div id="modalContainer"></div>
 
 <script>
 // VARSAYILAN YÖNETİCİ AFRİM YILMAZ
@@ -53,195 +53,184 @@ let globalAnn = localStorage.getItem("m_ann") || "📢 mak'alem Uygulamasına Ho
 let tab = "feed", dark = localStorage.getItem("m_d") === "true", isReg = false, guestMode = false, tmpImg = null, searchTerm = "";
 
 const save = () => {
-    localStorage.setItem("m_u", JSON.stringify(users));
-    localStorage.setItem("m_a", JSON.stringify(articles));
-    localStorage.setItem("m_r", JSON.stringify(reports));
-    localStorage.setItem("m_c", currU ? JSON.stringify(currU) : "");
-    localStorage.setItem("m_ann", globalAnn);
-    localStorage.setItem("m_d", dark);
+    localStorage.setItem("m_u", JSON.stringify(users));
+    localStorage.setItem("m_a", JSON.stringify(articles));
+    localStorage.setItem("m_r", JSON.stringify(reports));
+    localStorage.setItem("m_c", currU ? JSON.stringify(currU) : "");
+    localStorage.setItem("m_ann", globalAnn);
+    localStorage.setItem("m_d", dark);
 };
 
 const esc = (s) => String(s || "").replace(/[&<>]/g, m => ({'&':'&','<':'<','>':'>'}[m]));
 const isAdmin = () => currU && currU.email === "afrimyilmaz@gmail.com";
 
 function render() {
-    if(currU && !guestMode) { const fresh = users.find(x => x.id === currU.id); if (fresh) currU = fresh; }
-    document.body.className = dark ? "dark" : "";
-    const app = document.getElementById("app");
-    
-    if (!currU && !guestMode) { app.innerHTML = viewAuth(); return; }
+    if(currU && !guestMode) { const fresh = users.find(x => x.id === currU.id); if (fresh) currU = fresh; }
+    document.body.className = dark ? "dark" : "";
+    const app = document.getElementById("app");
+    
+    if (!currU && !guestMode) { app.innerHTML = viewAuth(); return; }
 
-    let html = `<div class="header"><div class="brand" onclick="tab='feed';render()">mak'<span>alem</span></div></div>
-                <div class="announcement">${esc(globalAnn)}</div>`;
-    
-    const nav = `<div class="tab-bar">
-        <div class="tab ${tab==='feed'?'active':''}" onclick="tab='feed';render()">🏠<br>Akış</div>
-        ${!guestMode ? `
-            <div class="tab ${tab==='add'?'active':''}" onclick="tab='add';render()">➕<br>Paylaş</div>
-            ${isAdmin() ? `<div class="tab ${tab==='admin'?'active':''}" onclick="tab='admin';render()">⚙️<br>Admin</div>` : ''}
-            <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
-        ` : `<div class="tab" onclick="location.reload()">🔑<br>Giriş Yap</div>`}
-    </div>`;
+    let html = `<div class="header"><div class="brand" onclick="tab='feed';render()">mak'<span>alem</span></div></div>
+                <div class="announcement">${esc(globalAnn)}</div>`;
+    
+    const nav = `<div class="tab-bar">
+        <div class="tab ${tab==='feed'?'active':''}" onclick="tab='feed';render()">🏠<br>Akış</div>
+        ${!guestMode ? `
+            <div class="tab ${tab==='add'?'active':''}" onclick="tab='add';render()">➕<br>Paylaş</div>
+            ${isAdmin() ? `<div class="tab ${tab==='admin'?'active':''}" onclick="tab='admin';render()">⚙️<br>Admin</div>` : ''}
+            <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
+        ` : `<div class="tab" onclick="location.reload()">🔑<br>Giriş Yap</div>`}
+    </div>`;
 
-    if (tab === "feed") {
-        html += `<div class="card"><input type="text" placeholder="🔍 Makale veya yazar ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
-    } else if (tab === "add") html += viewAdd();
-    else if (tab === "admin") html += viewAdmin();
-    else if (tab === "prof") html += viewProfile(currU.id);
+    if (tab === "feed") {
+        html += `<div class="card"><input type="text" placeholder="🔍 Makale veya yazar ara..." oninput="searchTerm=this.value;performSearch()" value="${esc(searchTerm)}"></div><div id="feedList"></div>`;
+    } else if (tab === "add") html += viewAdd();
+    else if (tab === "admin") html += viewAdmin();
+    else if (tab === "prof") html += viewProfile(currU ? currU.id : null);
 
-    // HAKKI SAKLIDIR İBARESI
-    html += `<div style="text-align:center; font-size:0.7rem; padding:10px; opacity:0.6; margin-bottom:80px">Bu uygulamanın Hakkı saklıdır. Tüm hakları Abdurrahman Yıldız'a aittir.</div>`;
+    html += `<div style="text-align:center; font-size:0.75rem; padding:20px; opacity:0.7; margin-bottom:80px; line-height:1.4">Bu uygulamanın Hakkı saklıdır.<br>Tüm hakları <b>Abdurrahman Yıldız</b>'a aittir.</div>`;
 
-    app.innerHTML = html + nav;
-    if (tab === "feed") performSearch();
+    app.innerHTML = html + nav;
+    if (tab === "feed") performSearch();
 }
 
 function viewAuth() {
-    return `<div class="card" style="text-align:center; margin-top:40px">
-        <div class="brand" style="font-size:2.5rem">mak'<span>alem</span></div>
-        ${!isReg ? `
-            <h3>Giriş Yap</h3><input id="le" placeholder="E-posta"><input id="lp" type="password" placeholder="Şifre">
-            <button onclick="login()">Giriş</button>
-            <p onclick="forgotPass()" style="margin-top:10px; color:var(--accent); cursor:pointer; font-size:0.9rem; text-decoration:underline">Şifremi Unuttum</p>
-            <button onclick="guestMode=true;render()" style="background:var(--text); margin-top:20px">Üye Olmadan Bak</button>
-            <p style="margin-top:20px">Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer">Kayıt Ol</span></p>
-        ` : `
-            <h3>Kayıt Ol</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta"><input id="rp" type="password" placeholder="Şifre"><input id="rq" placeholder="Güvenlik Sorusu (Örn: ilk kedim)"><input id="ra" placeholder="Cevabı">
-            <button onclick="register()" style="background:var(--success)">Kaydı Tamamla</button>
-            <p onclick="isReg=false;render()" style="margin-top:15px; cursor:pointer">Geri Dön</p>
-        `}</div>`;
+    return `<div class="card" style="text-align:center; margin-top:40px">
+        <div class="brand" style="font-size:2.5rem">mak'<span>alem</span></div>
+        ${!isReg ? `
+            <h3>Giriş Yap</h3><input id="le" placeholder="E-posta"><input id="lp" type="password" placeholder="Şifre">
+            <button onclick="login()">Giriş</button>
+            <p onclick="forgotPass()" style="margin-top:15px; color:var(--accent); cursor:pointer; font-size:0.9rem; text-decoration:underline">Şifremi Unuttum</p>
+            <button onclick="guestMode=true;render()" style="background:var(--text); margin-top:20px">Üye Olmadan Bak</button>
+            <p style="margin-top:20px">Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer">Kayıt Ol</span></p>
+        ` : `
+            <h3>Kayıt Ol</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta"><input id="rp" type="password" placeholder="Şifre">
+            <input id="rq" placeholder="Güvenlik Sorusu (Örn: ilk kedim)"><input id="ra" placeholder="Cevabı">
+            <button onclick="register()" style="background:var(--success)">Kaydı Tamamla</button>
+            <p onclick="isReg=false;render()" style="margin-top:15px; cursor:pointer">Geri Dön</p>
+        `}</div>`;
 }
 
 function performSearch() {
-    const list = document.getElementById('feedList'); if(!list) return;
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = articles.filter(a => {
-        const isMuted = currU ? (currU.muta || []).includes(a.uid) : false;
-        return !isMuted && (a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term) || a.uName.toLowerCase().includes(term));
-    });
-    list.innerHTML = filtered.map(a => renderCard(a)).join('') || '<p style="text-align:center; padding:20px">Henüz yazı yok.</p>';
+    const list = document.getElementById('feedList'); if(!list) return;
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = articles.filter(a => (a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term) || a.uName.toLowerCase().includes(term)));
+    list.innerHTML = filtered.map(a => renderCard(a)).join('') || '<p style="text-align:center; padding:20px">Yazı bulunamadı.</p>';
 }
 
 function renderCard(a) {
-    const u = users.find(x => x.id === a.uid);
-    const likeCount = (a.likes || []).length;
-    return `<div class="card" onclick="openFull(${a.id})">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
-            <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover" onclick="event.stopPropagation(); showUserModal(${a.uid})">
-            <div onclick="event.stopPropagation(); showUserModal(${a.uid})"><b>${esc(a.uName)}</b> ${u?.badge ? `<span class="badge">${u.badge}</span>`:''}</div>
-            <div style="flex:1"></div>
-            ${!guestMode ? `<span onclick="event.stopPropagation(); reportArticle(${a.id})">🚩</span>` : ''}
-        </div>
-        <h3 style="color:var(--accent)">${esc(a.title)}</h3>
-        ${a.img ? `<img src="${a.img}" class="feed-img">` : ''}
-        <p style="font-size:0.85rem">${esc(a.content.substring(0,80))}...</p>
-        <div style="margin-top:10px; font-size:0.8rem; display:flex; gap:15px">
-             <span onclick="event.stopPropagation(); likeArticle(${a.id})" style="cursor:pointer">❤️ ${likeCount}</span>
-             <span onclick="event.stopPropagation(); readAloud('${esc(a.content.replace(/'/g, ''))}')" style="cursor:pointer">🔊 Dinle</span>
-        </div>
-    </div>`;
+    const u = users.find(x => x.id === a.uid);
+    const likeCount = (a.likes || []).length;
+    return `<div class="card" onclick="openFull(${a.id})">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+            <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover" onclick="event.stopPropagation(); showUserModal(${a.uid})">
+            <div onclick="event.stopPropagation(); showUserModal(${a.uid})"><b>${esc(a.uName)}</b> ${u?.badge ? `<span class="badge">${u.badge}</span>`:''}</div>
+            <div style="flex:1"></div>
+            ${!guestMode ? `<span onclick="event.stopPropagation(); reportArticle(${a.id})" style="cursor:pointer">🚩</span>` : ''}
+        </div>
+        <h3 style="color:var(--accent)">${esc(a.title)}</h3>
+        ${a.img ? `<img src="${a.img}" class="feed-img">` : ''}
+        <p style="font-size:0.85rem">${esc(a.content.substring(0,80))}...</p>
+        <div style="margin-top:10px; font-size:0.8rem; display:flex; gap:15px">
+             <span onclick="event.stopPropagation(); likeArticle(${a.id})" style="cursor:pointer">❤️ ${likeCount}</span>
+             <span onclick="event.stopPropagation(); readAloud('${esc(a.content.replace(/'/g, ''))}')" style="cursor:pointer">🔊 Dinle</span>
+        </div>
+    </div>`;
 }
 
 function viewProfile(userId) {
-    const u = users.find(x => x.id === userId); if(!u) return "";
-    const isMe = currU && currU.id === userId;
-    const userArticles = articles.filter(a => a.uid === u.id);
-    return `<div class="card" style="text-align:center">
-        ${isMe ? `<button onclick="dark=!dark;save();render()" style="background:var(--text); margin-bottom:15px">${dark?'☀️ Aydınlık':'🌙 Karanlık'}</button>` : ''}
-        <img src="${u.pic||'https://via.placeholder.com/100'}" class="profile-img">
-        ${isMe ? `<button onclick="pickImg(r=>{currU.pic=r; saveUsers(); render()})" style="width:auto; padding:5px 10px; font-size:0.7rem">Fotoğraf Ekle</button>` : ''}
-        <h2>${esc(u.name)} ${u.badge ? `<span class="badge">${u.badge}</span>`:''}</h2>
-        <p style="margin:10px 0"><b>Hakkında:</b> ${esc(u.bio || 'Henüz bir bilgi eklenmemiş.')}</p>
-        ${isMe ? `<button onclick="let b=prompt('Özgeçmiş:', currU.bio||''); if(b!==null){currU.bio=b; saveUsers(); render();}" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
-        <div style="margin-top:15px; display:flex; justify-content:center; gap:10px">
-            ${!isMe && !guestMode ? `<button onclick="toggleFollow(${u.id})" style="width:auto; padding:5px 12px">${(currU.follows||[]).includes(u.id)?'Takibi Bırak':'Takip Et'}</button>` : ''}
-        </div>
-        <hr style="margin:15px 0">
-        <h4>Paylaşımları</h4>
-        <div class="user-scroll-box">
-            ${userArticles.map(a => `<div onclick="openFull(${a.id})" style="padding:5px; border-bottom:1px solid var(--border); cursor:pointer">${esc(a.title)}</div>`).join('') || 'Yazı yok.'}
-        </div>
-        ${isMe ? `<button onclick="logout()" style="background:var(--danger); margin-top:15px">Çıkış Yap</button>` : `<button onclick="closeM()" style="margin-top:15px">Kapat</button>`}
-    </div>`;
+    if(!userId && guestMode) return `<div class="card" style="text-align:center"><h3>Ziyaretçi Modu</h3><p>Profilini görmek için üye olmalısın.</p></div>`;
+    const u = users.find(x => x.id === userId); if(!u) return "";
+    const isMe = currU && currU.id === userId;
+    const userArticles = articles.filter(a => a.uid === u.id);
+    return `<div class="card" style="text-align:center">
+        ${isMe ? `<button onclick="dark=!dark;save();render()" style="background:var(--text); margin-bottom:15px">${dark?'☀️ Aydınlık':'🌙 Karanlık'}</button>` : ''}
+        <img src="${u.pic||'https://via.placeholder.com/100'}" class="profile-img">
+        ${isMe ? `<button onclick="pickImg(r=>{currU.pic=r; saveUsers(); render()})" style="width:auto; padding:5px 10px; font-size:0.7rem">Fotoğraf Ekle</button>` : ''}
+        <h2>${esc(u.name)} ${u.badge ? `<span class="badge">${u.badge}</span>`:''}</h2>
+        <p style="margin:10px 0"><b>Hakkında:</b> ${esc(u.bio || 'Henüz bir bilgi eklenmemiş.')}</p>
+        ${isMe ? `<button onclick="let b=prompt('Özgeçmiş:', currU.bio||''); if(b!==null){currU.bio=b; saveUsers(); render();}" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
+        <div style="margin-top:15px; display:flex; justify-content:center; gap:10px">
+            ${!isMe && !guestMode ? `<button onclick="toggleFollow(${u.id})" style="width:auto; padding:5px 12px">${(currU.follows||[]).includes(u.id)?'Takibi Bırak':'Takip Et'}</button>` : ''}
+        </div>
+        <hr style="margin:15px 0">
+        <h4>Paylaşımları</h4>
+        <div class="user-scroll-box">
+            ${userArticles.map(a => `<div onclick="openFull(${a.id})" style="padding:10px; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between"><span>${esc(a.title)}</span> ${isMe?`<span onclick="event.stopPropagation();delA(${a.id});render()">🗑️</span>`:''}</div>`).join('') || 'Henüz bir şey paylaşmamış.'}
+        </div>
+        ${isMe ? `<button onclick="logout()" style="background:var(--danger); margin-top:15px">Çıkış Yap</button>` : `<button onclick="closeM()" style="margin-top:15px">Kapat</button>`}
+    </div>`;
 }
 
 function viewAdmin() {
-    return `<div class="card"><h2>⚙️ Yönetim Paneli</h2>
-    <input id="annI" value="${esc(globalAnn)}" placeholder="Duyuru yayınla..."><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button>
-    <hr style="margin:20px 0">
-    <h3>👤 Yazarlar & Yetki</h3>
-    <div class="user-scroll-box">
-        ${users.map(u => `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid var(--border); padding:5px">
-            <span onclick="showUserModal(${u.id})" style="cursor:pointer">${esc(u.name)}</span>
-            <div>
-                <button onclick="giveBadge(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--warning); color:#000">Rozet</button>
-                <button onclick="warnUser(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--accent)">Uyar</button>
-                ${u.id!==1?`<button onclick="delU(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--danger)">Sil</button>`:''}
-            </div>
-        </div>`).join('')}
-    </div>
-    <hr style="margin:20px 0">
-    <h3>🚩 Şikayetler (${reports.length})</h3>
-    ${reports.map(r => `<div style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px">
-        <b>${esc(r.title)}</b> - <small>${esc(r.reason)}</small><br>
-        <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Oku</button>
-        <button onclick="delA(${r.aid}); delReport(${r.id})" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Kaldır</button>
-    </div>`).join('') || 'Şikayet yok.'}</div>`;
+    return `<div class="card"><h2>⚙️ Yönetim Paneli</h2>
+    <input id="annI" value="${esc(globalAnn)}" placeholder="Duyuru yayınla..."><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button>
+    <hr style="margin:20px 0">
+    <h3>👤 Yazarlar & Yetki (bebeğim olur bebeğim)</h3>
+    <div class="user-scroll-box">
+        ${users.map(u => `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid var(--border); padding:5px">
+            <span onclick="showUserModal(${u.id})" style="cursor:pointer">${esc(u.name)}</span>
+            <div>
+                <button onclick="giveBadge(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--warning); color:#000">Rozet</button>
+                <button onclick="warnUser(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--accent)">Uyar</button>
+                ${u.id!==1?`<button onclick="delU(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--danger)">Sil</button>`:''}
+            </div>
+        </div>`).join('')}
+    </div>
+    <hr style="margin:20px 0">
+    <h3>🚩 Şikayetler (${reports.length})</h3>
+    ${reports.map(r => `<div style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px">
+        <b>${esc(r.title)}</b> - <small>${esc(r.reason)}</small><br>
+        <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Oku</button>
+        <button onclick="delA(${r.aid}); delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Kaldırılsın</button>
+        <button onclick="delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem">Kapat</button>
+    </div>`).join('') || 'Şikayet yok.'}</div>`;
 }
 
-// --- AKSİYONLAR ---
 function publishWithAnim() {
-    let t=document.getElementById("at").value, c=document.getElementById("ac").value;
-    if(!t||!c) return alert("Usta başlık ve içerik boş kalmaz!");
-    document.getElementById("loader").style.display = "flex";
-    setTimeout(() => {
-        articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[] });
-        tmpImg=null; save(); document.getElementById("loader").style.display="none"; tab="feed"; render();
-    }, 1500);
-}
-
-function readAloud(text) {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'tr-TR';
-        window.speechSynthesis.speak(msg);
-    } else alert("Tarayıcınız sesli okumayı desteklemiyor.");
+    let t=document.getElementById("at").value, c=document.getElementById("ac").value;
+    if(!t||!c) return alert("Başlık ve içerik boş kalmaz usta!");
+    document.getElementById("loader").style.display = "flex";
+    setTimeout(() => {
+        articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[] });
+        tmpImg=null; save(); document.getElementById("loader").style.display="none"; tab="feed"; render();
+    }, 1500);
 }
 
 function login() {
-    let e=document.getElementById("le").value.trim().toLowerCase(), p=document.getElementById("lp").value.trim();
-    let u=users.find(x=>x.email.toLowerCase()===e && x.pass===p);
-    if(u){currU=u; guestMode=false; save(); render();} else alert("Giriş başarısız usta!");
+    let e=document.getElementById("le").value.trim().toLowerCase(), p=document.getElementById("lp").value.trim();
+    let u=users.find(x=>x.email.toLowerCase()===e && x.pass===p);
+    if(u){currU=u; guestMode=false; save(); render();} else alert("Giriş başarısız usta!");
 }
 
 function register() {
-    let n=document.getElementById("rn").value, e=document.getElementById("re").value.trim().toLowerCase(), p=document.getElementById("rp").value.trim(), q=document.getElementById("rq").value, a=document.getElementById("ra").value;
-    if(n&&e&&p&&q&&a){ users.push({id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, muta:[], follows:[], pic:'', bio:''}); alert("Hoş geldin! Giriş yapabilirsin."); isReg=false; render(); }
+    let n=document.getElementById("rn").value, e=document.getElementById("re").value.trim().toLowerCase(), p=document.getElementById("rp").value.trim(), q=document.getElementById("rq").value, a=document.getElementById("ra").value;
+    if(n&&e&&p&&q&&a){ users.push({id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, muta:[], follows:[], pic:'', bio:''}); alert("Hoş geldin! Giriş yapabilirsin."); isReg=false; render(); }
 }
 
 function forgotPass() {
-    let e=prompt("Kayıtlı E-posta:"); if(!e) return;
-    let u=users.find(x=>x.email.toLowerCase()===e.trim().toLowerCase());
-    if(!u) return alert("Böyle bir yazar yok!");
-    let a=prompt(`Güvenlik Sorusu: ${u.rq}\nCevabınız?`);
-    if(a && a.trim().toLowerCase()===u.ra.toLowerCase()) alert(`Şifreniz: ${u.pass}`); else if(a) alert("Yanlış cevap!");
+    let e=prompt("Kayıtlı E-posta:"); if(!e) return;
+    let u=users.find(x=>x.email.toLowerCase()===e.trim().toLowerCase());
+    if(!u) return alert("Böyle bir yazar yok!");
+    let a=prompt(`Güvenlik Sorusu: ${u.rq}\nCevabınız?`);
+    if(a && a.trim().toLowerCase()===u.ra.toLowerCase()) alert(`Usta şifren: ${u.pass}`); else if(a) alert("Cevap yanlış!");
 }
 
 function pickImg(cb) { 
-    const i=document.createElement('input'); i.type='file'; i.accept='image/*'; 
-    i.onchange=e=>{
-        const f=e.target.files[0], r=new FileReader();
-        r.onload=re=>{
-            const img=new Image();
-            img.onload=()=>{
-                const cvs=document.createElement('canvas'); const m=600; let w=img.width, h=img.height;
-                if(w>m){h*=m/w; w=m;} cvs.width=w; cvs.height=h;
-                cvs.getContext('2d').drawImage(img,0,0,w,h); cb(cvs.toDataURL('image/jpeg',0.7));
-            };
-            img.src=re.target.result;
-        }; r.readAsDataURL(f);
-    }; i.click();
+    const i=document.createElement('input'); i.type='file'; i.accept='image/*'; 
+    i.onchange=e=>{
+        const f=e.target.files[0], r=new FileReader();
+        r.onload=re=>{
+            const img=new Image();
+            img.onload=()=>{
+                const cvs=document.createElement('canvas'); const m=600; let w=img.width, h=img.height;
+                if(w>m){h*=m/w; w=m;} cvs.width=w; cvs.height=h;
+                cvs.getContext('2d').drawImage(img,0,0,w,h); cb(cvs.toDataURL('image/jpeg',0.7));
+            };
+            img.src=re.target.result;
+        }; r.readAsDataURL(f);
+    }; i.click();
 }
 
 function viewAdd() { return `<div class="card"><h2>✍️ Yeni Makale</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="10" placeholder="Yaz usta, kalem sende..."></textarea><button onclick="publishWithAnim()" style="background:var(--success)">Makaleyi Yayınla</button></div>`; }
@@ -249,14 +238,15 @@ function openFull(id) { const a=articles.find(x=>x.id===id); if(!a) return; cons
 function closeFull() { window.speechSynthesis.cancel(); document.getElementById("fullReader").classList.remove("active"); }
 function showUserModal(id) { document.getElementById('modalContainer').innerHTML=`<div class="modal-overlay" onclick="closeM()"><div class="modal-card">${viewProfile(id)}</div></div>`; }
 function closeM() { document.getElementById('modalContainer').innerHTML=''; }
-function likeArticle(aid) { if(guestMode) return alert("Beğenmek için giriş yapmalısın."); let a=articles.find(x=>x.id===aid); if(!a.likes) a.likes=[]; if(a.likes.includes(currU.id)) a.likes=a.likes.filter(id=>id!==currU.id); else a.likes.push(currU.id); save(); render(); }
-function reportArticle(aid) { let r=prompt("Şikayet nedeni?"); if(r) { reports.push({id:Date.now(), aid, reporter:currU.name, reason:r, title:articles.find(x=>x.id===aid)?.title}); save(); alert("İncelenmek üzere iletildi."); } }
+function likeArticle(aid) { if(guestMode) return alert("Beğenmek için üye olmalısın."); let a=articles.find(x=>x.id===aid); if(!a.likes) a.likes=[]; if(a.likes.includes(currU.id)) a.likes=a.likes.filter(id=>id!==currU.id); else a.likes.push(currU.id); save(); render(); }
+function reportArticle(aid) { let r=prompt("Neden şikayet ediyorsun usta?"); if(r) { reports.push({id:Date.now(), aid, reporter:currU.name, reason:r, title:articles.find(x=>x.id===aid)?.title}); save(); alert("Bildirildi."); } }
 function toggleFollow(uid) { if(!currU.follows) currU.follows=[]; if(currU.follows.includes(uid)) currU.follows=currU.follows.filter(id=>id!==uid); else currU.follows.push(uid); saveUsers(); render(); }
-function giveBadge(uid) { let b=prompt("Yazara rozet ver (Örn: Usta, Yazar, Onur Üyesi):"); users=users.map(u=>u.id===uid?({...u, badge:b}):u); save(); render(); }
-function warnUser(uid) { alert(users.find(u=>u.id===uid).name + " kişisine sistem uyarısı gönderildi."); }
-function delU(id) { if(confirm('Yazarı ve tüm verilerini sileyim mi?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
-function delA(id) { articles=articles.filter(a=>a.id!==id); save(); }
-function delReport(id) { reports=reports.filter(r=>r.id!==id); save(); render(); }
+function giveBadge(uid) { let b=prompt("Yazara rozet ver:"); users=users.map(u=>u.id===uid?({...u, badge:b}):u); save(); render(); }
+function warnUser(uid) { alert(users.find(u=>u.id===uid).name + " uyarıldı."); }
+function delU(id) { if(confirm('Yazarı sileyim mi usta?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function delA(id) { if(confirm('Yazı silinsin mi?')){ articles=articles.filter(a=>a.id!==id); save(); }}
+function delReport(id) { reports=reports.filter(r=>r.id!==id); save(); }
+function readAloud(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'tr-TR'; window.speechSynthesis.speak(msg); } }
 function saveUsers() { users=users.map(u=>u.id===currU.id?currU:u); save(); }
 function logout() { currU=null; guestMode=false; save(); render(); }
 window.onload = render;
