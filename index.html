@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>mak'alem v12.9 - Usta İşi</title>
+    <title>mak'alem v13.1 - Usta İşi</title>
     <style>
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
         body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 80px; }
-
-        /* KALEM ANİMASYONU */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         body.dark #loader { background: rgba(30, 39, 46, 0.9); }
         .spinner { width: 85px; height: 85px; border: 5px solid var(--border); border-top: 5px solid var(--accent); border-right: 5px solid var(--success); border-bottom: 5px solid var(--warning); border-radius: 50%; animation: spin 1s linear infinite; position: relative; }
         .pen-icon { position: absolute; font-size: 35px; top: 18px; left: 22px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* TASARIM */
         .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 100; }
         .brand { font-size: 1.8rem; font-weight: bold; color: var(--accent); cursor: pointer; }
         .announcement { background: var(--warning); color: #000; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: bold; border-radius: 0 0 15px 15px; margin: 0 10px 10px 10px; }
@@ -35,6 +31,7 @@
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; }
         .modal-card { background: var(--card); width: 95%; max-width: 500px; padding: 20px; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
         .user-scroll-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: var(--bg); }
+        .del-icon { color: var(--danger); cursor: pointer; font-size: 1.2rem; padding: 5px; }
     </style>
 </head>
 <body>
@@ -44,7 +41,6 @@
     <div id="modalContainer"></div>
 
 <script>
-// VARSAYILAN YÖNETİCİ AFRİM YILMAZ
 let users = JSON.parse(localStorage.getItem("m_u") || '[{"id":1, "name":"Afrim Yılmaz", "email":"afrimyilmaz@gmail.com", "pass":"2663", "rq":"ilk kedim", "ra":"çita", "bio":"Uygulama Yöneticisi", "pic":"", "badge":"Kurucu", "muta":[], "follows":[]}]');
 let articles = JSON.parse(localStorage.getItem("m_a") || "[]");
 let reports = JSON.parse(localStorage.getItem("m_r") || "[]");
@@ -65,7 +61,11 @@ const esc = (s) => String(s || "").replace(/[&<>]/g, m => ({'&':'&','<':'<','>':
 const isAdmin = () => currU && currU.email === "afrimyilmaz@gmail.com";
 
 function render() {
-    if(currU && !guestMode) { const fresh = users.find(x => x.id === currU.id); if (fresh) currU = fresh; }
+    // HATA DÜZELTME: currU varsa kontrol et, yoksa patlama
+    if(currU && !guestMode) { 
+        const fresh = users.find(x => x.id === currU.id); 
+        if (fresh) currU = fresh; 
+    }
     document.body.className = dark ? "dark" : "";
     const app = document.getElementById("app");
     
@@ -90,7 +90,6 @@ function render() {
     else if (tab === "prof") html += viewProfile(currU ? currU.id : null);
 
     html += `<div style="text-align:center; font-size:0.75rem; padding:20px; opacity:0.7; margin-bottom:80px; line-height:1.4">Bu uygulamanın Hakkı saklıdır.<br>Tüm hakları <b>Abdurrahman Yıldız</b>'a aittir.</div>`;
-
     app.innerHTML = html + nav;
     if (tab === "feed") performSearch();
 }
@@ -116,7 +115,7 @@ function performSearch() {
     const list = document.getElementById('feedList'); if(!list) return;
     const term = searchTerm.toLowerCase().trim();
     const filtered = articles.filter(a => (a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term) || a.uName.toLowerCase().includes(term)));
-    list.innerHTML = filtered.map(a => renderCard(a)).join('') || '<p style="text-align:center; padding:20px">Yazı bulunamadı.</p>';
+    list.innerHTML = filtered.map(a => renderCard(a)).join('') || '<p style="text-align:center; padding:20px">Yazı yok usta.</p>';
 }
 
 function renderCard(a) {
@@ -140,7 +139,7 @@ function renderCard(a) {
 }
 
 function viewProfile(userId) {
-    if(!userId && guestMode) return `<div class="card" style="text-align:center"><h3>Ziyaretçi Modu</h3><p>Profilini görmek için üye olmalısın.</p></div>`;
+    if(!userId && guestMode) return `<div class="card" style="text-align:center"><h3>Ziyaretçi Modu</h3><p>Profil için üye olmalısın usta.</p></div>`;
     const u = users.find(x => x.id === userId); if(!u) return "";
     const isMe = currU && currU.id === userId;
     const userArticles = articles.filter(a => a.uid === u.id);
@@ -149,27 +148,29 @@ function viewProfile(userId) {
         <img src="${u.pic||'https://via.placeholder.com/100'}" class="profile-img">
         ${isMe ? `<button onclick="pickImg(r=>{currU.pic=r; saveUsers(); render()})" style="width:auto; padding:5px 10px; font-size:0.7rem">Fotoğraf Ekle</button>` : ''}
         <h2>${esc(u.name)} ${u.badge ? `<span class="badge">${u.badge}</span>`:''}</h2>
-        <p style="margin:10px 0"><b>Hakkında:</b> ${esc(u.bio || 'Henüz bir bilgi eklenmemiş.')}</p>
-        ${isMe ? `<button onclick="let b=prompt('Özgeçmiş:', currU.bio||''); if(b!==null){currU.bio=b; saveUsers(); render();}" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
-        <div style="margin-top:15px; display:flex; justify-content:center; gap:10px">
-            ${!isMe && !guestMode ? `<button onclick="toggleFollow(${u.id})" style="width:auto; padding:5px 12px">${(currU.follows||[]).includes(u.id)?'Takibi Bırak':'Takip Et'}</button>` : ''}
-        </div>
+        <p style="margin:10px 0"><b>Hakkında:</b> ${esc(u.bio || 'Bilgi yok.')}</p>
+        ${isMe ? `<button onclick="let b=prompt('Hakkında:', currU.bio||''); if(b!==null){currU.bio=b; saveUsers(); render();}" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
         <hr style="margin:15px 0">
         <h4>Paylaşımları</h4>
         <div class="user-scroll-box">
-            ${userArticles.map(a => `<div onclick="openFull(${a.id})" style="padding:10px; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between"><span>${esc(a.title)}</span> ${isMe?`<span onclick="event.stopPropagation();delA(${a.id});render()">🗑️</span>`:''}</div>`).join('') || 'Henüz bir şey paylaşmamış.'}
+            ${userArticles.map(a => `
+                <div style="padding:10px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center">
+                    <span onclick="openFull(${a.id})" style="cursor:pointer; flex:1">${esc(a.title)}</span>
+                    ${isMe ? `<span class="del-icon" onclick="delA(${a.id});render()">🗑️</span>` : ''}
+                </div>
+            `).join('') || 'Henüz yazı yok.'}
         </div>
         ${isMe ? `<button onclick="logout()" style="background:var(--danger); margin-top:15px">Çıkış Yap</button>` : `<button onclick="closeM()" style="margin-top:15px">Kapat</button>`}
     </div>`;
 }
 
 function viewAdmin() {
-    return `<div class="card"><h2>⚙️ Yönetim Paneli</h2>
-    <input id="annI" value="${esc(globalAnn)}" placeholder="Duyuru yayınla..."><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Duyuruyu Güncelle</button>
+    return `<div class="card"><h2>⚙️ Admin Paneli</h2>
+    <input id="annI" value="${esc(globalAnn)}" placeholder="Duyuru..."><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Yayınla</button>
     <hr style="margin:20px 0">
-    <h3>👤 Yazarlar & Yetki (bebeğim olur bebeğim)</h3>
+    <h3>👤 Yazarlar</h3>
     <div class="user-scroll-box">
-        ${users.map(u => `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid var(--border); padding:5px">
+        ${users.map(u => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border); padding:5px">
             <span onclick="showUserModal(${u.id})" style="cursor:pointer">${esc(u.name)}</span>
             <div>
                 <button onclick="giveBadge(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--warning); color:#000">Rozet</button>
@@ -181,16 +182,16 @@ function viewAdmin() {
     <hr style="margin:20px 0">
     <h3>🚩 Şikayetler (${reports.length})</h3>
     ${reports.map(r => `<div style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px">
-        <b>${esc(r.title)}</b> - <small>${esc(r.reason)}</small><br>
+        <b>${esc(r.title)}</b><br><small>${esc(r.reason)}</small><br>
         <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Oku</button>
-        <button onclick="delA(${r.aid}); delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Kaldırılsın</button>
+        <button onclick="delA(${r.aid}); delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Makaleyi Sil 🗑️</button>
         <button onclick="delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem">Kapat</button>
     </div>`).join('') || 'Şikayet yok.'}</div>`;
 }
 
 function publishWithAnim() {
     let t=document.getElementById("at").value, c=document.getElementById("ac").value;
-    if(!t||!c) return alert("Başlık ve içerik boş kalmaz usta!");
+    if(!t||!c) return alert("Usta başlık ve içerik boş kalmaz!");
     document.getElementById("loader").style.display = "flex";
     setTimeout(() => {
         articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[] });
@@ -201,7 +202,7 @@ function publishWithAnim() {
 function login() {
     let e=document.getElementById("le").value.trim().toLowerCase(), p=document.getElementById("lp").value.trim();
     let u=users.find(x=>x.email.toLowerCase()===e && x.pass===p);
-    if(u){currU=u; guestMode=false; save(); render();} else alert("Giriş başarısız usta!");
+    if(u){currU=u; guestMode=false; save(); render();} else alert("Usta giriş başarısız!");
 }
 
 function register() {
@@ -209,12 +210,16 @@ function register() {
     if(n&&e&&p&&q&&a){ users.push({id:Date.now(), name:n, email:e, pass:p, rq:q, ra:a, muta:[], follows:[], pic:'', bio:''}); alert("Hoş geldin! Giriş yapabilirsin."); isReg=false; render(); }
 }
 
+function delA(id) { if(confirm('Bu makale kökten gitsin mi usta?')){ articles=articles.filter(a=>a.id!==id); save(); render(); }}
+function delU(id) { if(confirm('Yazarı ve tüm verilerini siliyorum?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
+function delReport(id) { reports=reports.filter(r=>r.id!==id); save(); }
+
 function forgotPass() {
     let e=prompt("Kayıtlı E-posta:"); if(!e) return;
     let u=users.find(x=>x.email.toLowerCase()===e.trim().toLowerCase());
-    if(!u) return alert("Böyle bir yazar yok!");
-    let a=prompt(`Güvenlik Sorusu: ${u.rq}\nCevabınız?`);
-    if(a && a.trim().toLowerCase()===u.ra.toLowerCase()) alert(`Usta şifren: ${u.pass}`); else if(a) alert("Cevap yanlış!");
+    if(!u) return alert("Yazar bulunamadı!");
+    let a=prompt(`Güvenlik Sorusu: ${u.rq}\nCevap?`);
+    if(a && a.trim().toLowerCase()===u.ra.toLowerCase()) alert(`Şifreniz: ${u.pass}`); else if(a) alert("Yanlış cevap usta!");
 }
 
 function pickImg(cb) { 
@@ -233,19 +238,16 @@ function pickImg(cb) {
     }; i.click();
 }
 
-function viewAdd() { return `<div class="card"><h2>✍️ Yeni Makale</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="10" placeholder="Yaz usta, kalem sende..."></textarea><button onclick="publishWithAnim()" style="background:var(--success)">Makaleyi Yayınla</button></div>`; }
+function viewAdd() { return `<div class="card"><h2>✍️ Yeni Makale</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="10" placeholder="Yaz usta, kalem sende..."></textarea><button onclick="publishWithAnim()" style="background:var(--success)">Yayınla</button></div>`; }
 function openFull(id) { const a=articles.find(x=>x.id===id); if(!a) return; const r=document.getElementById("fullReader"); r.innerHTML=`<button onclick="closeFull()">Geri</button><h1>${esc(a.title)}</h1><p><small>${esc(a.uName)} yazdı</small></p>${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin:15px 0">`:''}<p style="white-space:pre-wrap; font-size:1.1rem; line-height:1.7">${esc(a.content)}</p>`; r.classList.add("active"); }
 function closeFull() { window.speechSynthesis.cancel(); document.getElementById("fullReader").classList.remove("active"); }
 function showUserModal(id) { document.getElementById('modalContainer').innerHTML=`<div class="modal-overlay" onclick="closeM()"><div class="modal-card">${viewProfile(id)}</div></div>`; }
 function closeM() { document.getElementById('modalContainer').innerHTML=''; }
 function likeArticle(aid) { if(guestMode) return alert("Beğenmek için üye olmalısın."); let a=articles.find(x=>x.id===aid); if(!a.likes) a.likes=[]; if(a.likes.includes(currU.id)) a.likes=a.likes.filter(id=>id!==currU.id); else a.likes.push(currU.id); save(); render(); }
-function reportArticle(aid) { let r=prompt("Neden şikayet ediyorsun usta?"); if(r) { reports.push({id:Date.now(), aid, reporter:currU.name, reason:r, title:articles.find(x=>x.id===aid)?.title}); save(); alert("Bildirildi."); } }
+function reportArticle(aid) { if(guestMode) return alert("Şikayet için üye olmalısın."); let r=prompt("Şikayet nedeni?"); if(r) { reports.push({id:Date.now(), aid, reporter:currU.name, reason:r, title:articles.find(x=>x.id===aid)?.title}); save(); alert("Bildirildi."); } }
 function toggleFollow(uid) { if(!currU.follows) currU.follows=[]; if(currU.follows.includes(uid)) currU.follows=currU.follows.filter(id=>id!==uid); else currU.follows.push(uid); saveUsers(); render(); }
-function giveBadge(uid) { let b=prompt("Yazara rozet ver:"); users=users.map(u=>u.id===uid?({...u, badge:b}):u); save(); render(); }
+function giveBadge(uid) { let b=prompt("Rozet ver:"); users=users.map(u=>u.id===uid?({...u, badge:b}):u); save(); render(); }
 function warnUser(uid) { alert(users.find(u=>u.id===uid).name + " uyarıldı."); }
-function delU(id) { if(confirm('Yazarı sileyim mi usta?')){ users=users.filter(u=>u.id!==id); articles=articles.filter(a=>a.uid!==id); save(); render(); }}
-function delA(id) { if(confirm('Yazı silinsin mi?')){ articles=articles.filter(a=>a.id!==id); save(); }}
-function delReport(id) { reports=reports.filter(r=>r.id!==id); save(); }
 function readAloud(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'tr-TR'; window.speechSynthesis.speak(msg); } }
 function saveUsers() { users=users.map(u=>u.id===currU.id?currU:u); save(); }
 function logout() { currU=null; guestMode=false; save(); render(); }
