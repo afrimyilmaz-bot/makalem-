@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>mak'alem v13.1 - Usta İşi</title>
+    <title>mak'alem v14.0 - Afrim Usta</title>
     <style>
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #2c3e50; --accent: #3498db; --border: #dcdde1; --danger: #e84118; --success: #2ecc71; --warning: #f1c40f; }
         body.dark { --bg: #1e272e; --card: #2f3640; --text: #f5f6fa; --border: #485460; --accent: #00a8ff; }
@@ -41,7 +41,7 @@
     <div id="modalContainer"></div>
 
 <script>
-let users = JSON.parse(localStorage.getItem("m_u") || '[{"id":1, "name":"Afrim Yılmaz", "email":"afrimyilmaz@gmail.com", "pass":"2663", "rq":"ilk kedim", "ra":"çita", "bio":"Uygulama Yöneticisi", "pic":"", "badge":"Kurucu", "muta":[], "follows":[]}]');
+let users = JSON.parse(localStorage.getItem("m_u") || '[{"id":1, "name":"Afrim", "email":"afrimyilmaz@gmail.com", "pass":"2663", "rq":"ilk kedim", "ra":"çita", "bio":"Uygulama Yöneticisi", "pic":"", "badge":"Kurucu", "muta":[], "follows":[]}]');
 let articles = JSON.parse(localStorage.getItem("m_a") || "[]");
 let reports = JSON.parse(localStorage.getItem("m_r") || "[]");
 let currU = localStorage.getItem("m_c") ? JSON.parse(localStorage.getItem("m_c")) : null;
@@ -61,7 +61,6 @@ const esc = (s) => String(s || "").replace(/[&<>]/g, m => ({'&':'&','<':'<','>':
 const isAdmin = () => currU && currU.email === "afrimyilmaz@gmail.com";
 
 function render() {
-    // HATA DÜZELTME: currU varsa kontrol et, yoksa patlama
     if(currU && !guestMode) { 
         const fresh = users.find(x => x.id === currU.id); 
         if (fresh) currU = fresh; 
@@ -80,7 +79,7 @@ function render() {
             <div class="tab ${tab==='add'?'active':''}" onclick="tab='add';render()">➕<br>Paylaş</div>
             ${isAdmin() ? `<div class="tab ${tab==='admin'?'active':''}" onclick="tab='admin';render()">⚙️<br>Admin</div>` : ''}
             <div class="tab ${tab==='prof'?'active':''}" onclick="tab='prof';render()">👤<br>Profil</div>
-        ` : `<div class="tab" onclick="location.reload()">🔑<br>Giriş Yap</div>`}
+        ` : `<div class="tab" onclick="location.reload()">🔑<br>Giriş</div>`}
     </div>`;
 
     if (tab === "feed") {
@@ -101,7 +100,7 @@ function viewAuth() {
             <h3>Giriş Yap</h3><input id="le" placeholder="E-posta"><input id="lp" type="password" placeholder="Şifre">
             <button onclick="login()">Giriş</button>
             <p onclick="forgotPass()" style="margin-top:15px; color:var(--accent); cursor:pointer; font-size:0.9rem; text-decoration:underline">Şifremi Unuttum</p>
-            <button onclick="guestMode=true;render()" style="background:var(--text); margin-top:20px">Üye Olmadan Bak</button>
+            <button onclick="guestMode=true;tab='feed';render()" style="background:var(--text); margin-top:20px">🔍 Üye Olmadan Bak</button>
             <p style="margin-top:20px">Hesabın yok mu? <span onclick="isReg=true;render()" style="color:var(--accent); cursor:pointer">Kayıt Ol</span></p>
         ` : `
             <h3>Kayıt Ol</h3><input id="rn" placeholder="Ad Soyad"><input id="re" placeholder="E-posta"><input id="rp" type="password" placeholder="Şifre">
@@ -121,12 +120,14 @@ function performSearch() {
 function renderCard(a) {
     const u = users.find(x => x.id === a.uid);
     const likeCount = (a.likes || []).length;
+    const dateStr = a.date ? new Date(a.date).toLocaleDateString('tr-TR') : 'Bilinmiyor';
     return `<div class="card" onclick="openFull(${a.id})">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
             <img src="${u?.pic || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:50%; object-fit:cover" onclick="event.stopPropagation(); showUserModal(${a.uid})">
             <div onclick="event.stopPropagation(); showUserModal(${a.uid})"><b>${esc(a.uName)}</b> ${u?.badge ? `<span class="badge">${u.badge}</span>`:''}</div>
             <div style="flex:1"></div>
-            ${!guestMode ? `<span onclick="event.stopPropagation(); reportArticle(${a.id})" style="cursor:pointer">🚩</span>` : ''}
+            <small style="opacity:0.6">${dateStr}</small>
+            ${!guestMode ? `<span onclick="event.stopPropagation(); reportArticle(${a.id})" style="cursor:pointer; margin-left:10px">🚩</span>` : ''}
         </div>
         <h3 style="color:var(--accent)">${esc(a.title)}</h3>
         ${a.img ? `<img src="${a.img}" class="feed-img">` : ''}
@@ -150,15 +151,18 @@ function viewProfile(userId) {
         <h2>${esc(u.name)} ${u.badge ? `<span class="badge">${u.badge}</span>`:''}</h2>
         <p style="margin:10px 0"><b>Hakkında:</b> ${esc(u.bio || 'Bilgi yok.')}</p>
         ${isMe ? `<button onclick="let b=prompt('Hakkında:', currU.bio||''); if(b!==null){currU.bio=b; saveUsers(); render();}" style="width:auto; padding:5px 10px; font-size:0.7rem">Düzenle</button>` : ''}
+        <div style="margin:15px 0">
+            ${!isMe && !guestMode ? `<button onclick="toggleFollow(${u.id})" style="width:auto; padding:8px 20px; background:var(--accent)">${(currU.follows && currU.follows.includes(u.id)) ? '✅ Takip Ediliyor' : '👤 Takip Et'}</button>` : ''}
+        </div>
         <hr style="margin:15px 0">
-        <h4>Paylaşımları</h4>
+        <h4>Kütüphanesi (${userArticles.length})</h4>
         <div class="user-scroll-box">
             ${userArticles.map(a => `
                 <div style="padding:10px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center">
-                    <span onclick="openFull(${a.id})" style="cursor:pointer; flex:1">${esc(a.title)}</span>
+                    <span onclick="openFull(${a.id})" style="cursor:pointer; flex:1; text-align:left">${esc(a.title)}</span>
                     ${isMe ? `<span class="del-icon" onclick="delA(${a.id});render()">🗑️</span>` : ''}
                 </div>
-            `).join('') || 'Henüz yazı yok.'}
+            `).join('') || 'Yazı yok.'}
         </div>
         ${isMe ? `<button onclick="logout()" style="background:var(--danger); margin-top:15px">Çıkış Yap</button>` : `<button onclick="closeM()" style="margin-top:15px">Kapat</button>`}
     </div>`;
@@ -183,9 +187,9 @@ function viewAdmin() {
     <h3>🚩 Şikayetler (${reports.length})</h3>
     ${reports.map(r => `<div style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px">
         <b>${esc(r.title)}</b><br><small>${esc(r.reason)}</small><br>
-        <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Oku</button>
+        <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Makaleyi Oku</button>
         <button onclick="delA(${r.aid}); delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Makaleyi Sil 🗑️</button>
-        <button onclick="delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem">Kapat</button>
+        <button onclick="delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem">Şikayeti Kaldır</button>
     </div>`).join('') || 'Şikayet yok.'}</div>`;
 }
 
@@ -194,7 +198,7 @@ function publishWithAnim() {
     if(!t||!c) return alert("Usta başlık ve içerik boş kalmaz!");
     document.getElementById("loader").style.display = "flex";
     setTimeout(() => {
-        articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[] });
+        articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[], date:Date.now() });
         tmpImg=null; save(); document.getElementById("loader").style.display="none"; tab="feed"; render();
     }, 1500);
 }
@@ -239,7 +243,7 @@ function pickImg(cb) {
 }
 
 function viewAdd() { return `<div class="card"><h2>✍️ Yeni Makale</h2><input id="at" placeholder="Başlık"><button onclick="pickImg(r=>{tmpImg=r;render()})">🖼️ Fotoğraf Ekle</button>${tmpImg?`<img src="${tmpImg}" class="feed-img">`:''}<textarea id="ac" rows="10" placeholder="Yaz usta, kalem sende..."></textarea><button onclick="publishWithAnim()" style="background:var(--success)">Yayınla</button></div>`; }
-function openFull(id) { const a=articles.find(x=>x.id===id); if(!a) return; const r=document.getElementById("fullReader"); r.innerHTML=`<button onclick="closeFull()">Geri</button><h1>${esc(a.title)}</h1><p><small>${esc(a.uName)} yazdı</small></p>${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin:15px 0">`:''}<p style="white-space:pre-wrap; font-size:1.1rem; line-height:1.7">${esc(a.content)}</p>`; r.classList.add("active"); }
+function openFull(id) { const a=articles.find(x=>x.id===id); if(!a) return; const r=document.getElementById("fullReader"); r.innerHTML=`<button onclick="closeFull()" style="background:var(--accent); width:auto; padding:8px 20px; margin-bottom:15px">Geri Dön</button><h1>${esc(a.title)}</h1><p><small>${esc(a.uName)} yazdı</small></p>${a.img?`<img src="${a.img}" style="width:100%; border-radius:20px; margin:15px 0">`:''}<p style="white-space:pre-wrap; font-size:1.1rem; line-height:1.7">${esc(a.content)}</p>`; r.classList.add("active"); }
 function closeFull() { window.speechSynthesis.cancel(); document.getElementById("fullReader").classList.remove("active"); }
 function showUserModal(id) { document.getElementById('modalContainer').innerHTML=`<div class="modal-overlay" onclick="closeM()"><div class="modal-card">${viewProfile(id)}</div></div>`; }
 function closeM() { document.getElementById('modalContainer').innerHTML=''; }
@@ -248,9 +252,90 @@ function reportArticle(aid) { if(guestMode) return alert("Şikayet için üye ol
 function toggleFollow(uid) { if(!currU.follows) currU.follows=[]; if(currU.follows.includes(uid)) currU.follows=currU.follows.filter(id=>id!==uid); else currU.follows.push(uid); saveUsers(); render(); }
 function giveBadge(uid) { let b=prompt("Rozet ver:"); users=users.map(u=>u.id===uid?({...u, badge:b}):u); save(); render(); }
 function warnUser(uid) { alert(users.find(u=>u.id===uid).name + " uyarıldı."); }
-function readAloud(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'tr-TR'; window.speechSynthesis.speak(msg); } }
+function readAloud(text) { 
+    if ('speechSynthesis' in window) { 
+        window.speechSynthesis.cancel(); 
+        const msg = new SpeechSynthesisUtterance(text); 
+        msg.lang = 'tr-TR'; 
+        window.speechSynthesis.speak(msg); 
+    } else {
+        alert("Usta senin cihazda sesli okuma özelliği kapalı.");
+    }
+}
+
+function pickImg(cb) { 
+    const i=document.createElement('input'); 
+    i.type='file'; 
+    i.accept='image/*'; 
+    i.onchange=e=>{
+        const f=e.target.files[0], r=new FileReader();
+        r.onload=re=>{
+            const img=new Image();
+            img.onload=()=>{
+                const cvs=document.createElement('canvas'); 
+                const m=600; 
+                let w=img.width, h=img.height;
+                if(w>m){h*=m/w; w=m;} 
+                cvs.width=w; cvs.height=h;
+                cvs.getContext('2d').drawImage(img,0,0,w,h); 
+                cb(cvs.toDataURL('image/jpeg',0.7));
+            };
+            img.src=re.target.result;
+        }; r.readAsDataURL(f);
+    }; 
+    i.click();
+}
+
+function viewAdmin() {
+    return `<div class="card"><h2>⚙️ Admin Paneli</h2>
+    <input id="annI" value="${esc(globalAnn)}" placeholder="Duyuru..."><button onclick="globalAnn=document.getElementById('annI').value;save();render()">Yayınla</button>
+    <hr style="margin:20px 0">
+    <h3>👤 Yazarlar</h3>
+    <div class="user-scroll-box">
+        ${users.map(u => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border); padding:5px">
+            <span onclick="showUserModal(${u.id})" style="cursor:pointer">${esc(u.name)}</span>
+            <div>
+                <button onclick="giveBadge(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--warning); color:#000">Rozet</button>
+                <button onclick="warnUser(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--accent)">Uyar</button>
+                ${u.id!==1?`<button onclick="delU(${u.id})" style="width:auto; padding:4px 8px; font-size:0.6rem; background:var(--danger)">Sil</button>`:''}
+            </div>
+        </div>`).join('')}
+    </div>
+    <hr style="margin:20px 0">
+    <h3>🚩 Şikayetler (${reports.length})</h3>
+    ${reports.map(r => `<div style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px">
+        <b>${esc(r.title)}</b><br><small>${esc(r.reason)}</small><br>
+        <button onclick="openFull(${r.aid})" style="width:auto; padding:5px 10px; font-size:0.7rem">Makaleyi Oku</button>
+        <button onclick="delA(${r.aid}); delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem; background:var(--danger)">Makaleyi Sil 🗑️</button>
+        <button onclick="delReport(${r.id}); render()" style="width:auto; padding:5px 10px; font-size:0.7rem">Şikayeti Kaldır</button>
+    </div>`).join('') || 'Şikayet yok.'}</div>`;
+}
+
+function publishWithAnim() {
+    let t=document.getElementById("at").value, c=document.getElementById("ac").value;
+    if(!t||!c) return alert("Usta başlık ve içerik boş kalmaz!");
+    // Renkli kalem efekti başlıyor
+    document.getElementById("loader").style.display = "flex";
+    setTimeout(() => {
+        articles.unshift({ id:Date.now(), uid:currU.id, uName:currU.name, title:t, content:c, img:tmpImg, likes:[], date:Date.now() });
+        tmpImg=null; 
+        save(); 
+        document.getElementById("loader").style.display="none"; // Efekt bitti
+        tab="feed"; 
+        render();
+    }, 1500);
+}
+
 function saveUsers() { users=users.map(u=>u.id===currU.id?currU:u); save(); }
-function logout() { currU=null; guestMode=false; save(); render(); }
+function delReport(id) { reports=reports.filter(r=>r.id!==id); save(); }
+
+function logout() { 
+    currU = null; 
+    guestMode = false; 
+    save(); 
+    render(); 
+}
+
 window.onload = render;
 </script>
 </body>
